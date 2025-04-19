@@ -23,14 +23,14 @@ export default function Login() {
 
     try {
       const res = await axios.post(
-        "http://127.0.0.1:8000/admin/signin",
+        "http://localhost:8000/admin/signin",
         payload,
         { withCredentials: true }
       );
       console.log("res", res);
       if (res.status == 200) {
         console.log("됏따");
-        router.push("/admin");
+        router.push("/");
       }
     } catch (err) {
       alert("로그인 실패");

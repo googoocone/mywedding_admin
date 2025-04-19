@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('access_token')?.value;
+  const token = request.cookies.get('admin_token')?.value;
 
   const isLoginPage = request.nextUrl.pathname === '/login';
 
@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (token && isLoginPage) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   return NextResponse.next();

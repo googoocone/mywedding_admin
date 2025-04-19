@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,10 +16,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="h-screen flex">
-        <Sidebar></Sidebar>
-        <main className="flex-1 p-6 overflow-y-auto bg-gray-50">
-          {children}
-        </main>
+        <AuthProvider>
+          <Sidebar></Sidebar>
+          <main className="flex-1 p-6 overflow-y-auto bg-gray-50">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );
