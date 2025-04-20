@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import { AuthProvider } from "@/context/AuthContext";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,6 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          type="text/javascript"
+          src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_NAVER_CLIENT_ID}&submodules=geocoder`}
+        ></Script>
+      </head>
       <body className="h-screen flex">
         <AuthProvider>
           <Sidebar></Sidebar>
