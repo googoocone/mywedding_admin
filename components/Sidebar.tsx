@@ -14,6 +14,10 @@ const menuItem = [
         name: "웨딩홀 표준견적서 등록",
         href: "/wedding-hall/createStandardEstimate",
       },
+      {
+        name: "웨딩홀 관리자 견적서 등록",
+        href: "/wedding-hall/createAdminEstimate",
+      },
       { name: "웨딩홀 검색", href: "/wedding-hall/search" },
       { name: "웨딩홀 현황", href: "/wedding-hall/status" },
     ],
@@ -54,7 +58,13 @@ export default function Sidebar() {
                       <Link
                         key={sub.href}
                         href={sub.href}
-                        className="text-md text-gray-600 hover:text-blue-500 hover:font-semibold"
+                        className={cn(
+                          "text-md text-gray-600 hover:text-blue-500 hover:font-semibold",
+                          {
+                            "text-blue-500":
+                              sub.name == "웨딩홀 표준견적서 등록",
+                          }
+                        )}
                       >
                         {sub.name}
                       </Link>
