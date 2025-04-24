@@ -3,14 +3,6 @@
 import NaverPlaceSearch from "@/components/NaverAddressSearch";
 import { FormEvent, useState } from "react";
 
-interface Estimate {
-  id: number;
-  hall_id: number;
-  hall_name: string;
-  hall_price: number;
-  date: string;
-}
-
 export default function createAdminEstimate() {
   const [companyData, setCompanyData] = useState({
     name: "",
@@ -19,7 +11,7 @@ export default function createAdminEstimate() {
     mapy: "",
   });
 
-  const [estimateData, setEstimateData] = useState<Estimate[]>([]);
+  const [estimateData, setEstimateData] = useState<any[]>([]);
 
   const [selectEstimate, setSelectEstimate] = useState("");
 
@@ -54,8 +46,8 @@ export default function createAdminEstimate() {
     }
   };
 
-  const handleSelectEstimate = async (hallName: string) => {
-    console.log("hallname", hallName);
+  const handleSelectEstimate = async (item: any) => {
+    console.log("item", item);
   };
 
   return (
@@ -77,11 +69,11 @@ export default function createAdminEstimate() {
       <div className="w-[600px] flex items-center justify-between">
         {estimateData.map((item) => (
           <div
-            onClick={() => handleSelectEstimate(item.hall_name)}
+            onClick={() => handleSelectEstimate(item)}
             key={item.id}
             className="w-[180px] h-[50px] bg-white text-blue-500 border border-blue-500 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:font-semibold"
           >
-            <p>{item.hall_name}</p>
+            <p>{item.hall.name}</p>
           </div>
         ))}
       </div>
