@@ -1,0 +1,260 @@
+"use client";
+
+import NaverPlaceSearch from "@/components/NaverAddressSearch";
+import UpdateAdminEstimate from "@/components/wedding-hall/updateAdminEstimate/page";
+import { FormEvent, useState } from "react";
+// 백엔드에서 받아온 상세 견적 데이터에 대한 인터페이스를 정의해야 합니다.
+// 이전 답변에서 제시해 드린 DetailedEstimateSchema의 TypeScript 버전이라고 생각하시면 됩니다.
+// 예: import { DetailedEstimate } from "@/interfaces/estimates"; // 실제 경로 및 타입 이름 사용
+
+// 임시로 any 또는 백엔드 응답 구조에 맞는 인터페이스를 정의합니다.
+// 백엔드 응답 JSON 구조에 맞춰 인터페이스를 정의하는 것이 가장 좋습니다.
+interface WeddingCompanyData {
+  name: string;
+  address: string;
+  phone?: string | null;
+  homepage?: string | null;
+  accessibility?: string | null;
+  lat?: number | null; // JSON에서는 Integer였지만, Number로 타입 정의
+  lng?: number | null; // JSON에서는 Integer였지만, Number로 타입 정의
+  ceremony_times?: string | null; // JSON에서 string으로 넘어왔지만 원래 JSON 타입
+  id: number;
+}
+
+interface HallPhotoData {
+  url: string;
+  hall_id: number;
+  caption?: string | null;
+  order_num?: number | null;
+  id: number;
+  is_visible?: boolean;
+}
+
+interface HallIncludeData {
+  hall_id: number;
+  category?: string | null;
+  id: number;
+  subcategory?: string | null;
+}
+
+interface HallData {
+  wedding_company_id: number;
+  name: string;
+  guarantees?: number | null;
+  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
+  id: number;
+  interval_minutes?: number | null;
+  parking?: number | null;
+  mood?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
+  wedding_company: WeddingCompanyData; // Nested Company Data
+  hall_includes: HallIncludeData[]; // Array of Includes
+  hall_photos: HallPhotoData[]; // Array of Photos
+}
+
+interface MealPriceData {
+  hall_id?: number; // 이전에 hall_id도 있었지만 estimate_id가 FK
+  estimate_id: number;
+  meal_type?: string | null;
+  category?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
+  price?: number | null;
+  extra?: string | null;
+  id: number;
+}
+
+interface EstimateOptionData {
+  estimate_id: number;
+  name?: string | null;
+  is_required?: boolean | null;
+  description?: string | null;
+  id: number;
+  price?: number | null;
+  reference_url?: string | null;
+}
+
+interface EtcData {
+  estimate_id: number;
+  id: number;
+  content?: string | null;
+}
+
+interface WeddingPackageItemData {
+  id: number;
+  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
+  company_name?: string | null;
+  price?: number | null;
+  description?: string | null;
+  url?: string | null;
+  wedding_package_id: number;
+}
+
+interface WeddingPackageData {
+  id: number;
+  total_price?: number | null;
+  estimate_id: number;
+  name?: string | null;
+  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
+  is_total_price?: boolean | null;
+  wedding_package_items: WeddingPackageItemData[]; // Array of Package Items
+}
+
+// 백엔드에서 받아온 상세 견적 데이터의 전체 구조에 대한 인터페이스
+// DetailedEstimateSchema의 TypeScript 버전
+interface DetailedEstimate {
+  hall_id: number;
+  hall_price?: number | null;
+  date?: string | null; // 날짜는 Date 객체로 변환할 수도 있습니다.
+  id: number;
+  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
+  created_by_user_id?: string | null; // UUID 같은 경우 string
+  hall: HallData; // Nested Hall Data
+  estimate_options: EstimateOptionData[]; // Array of Options
+  etcs: EtcData[]; // Array of Etc
+  wedding_packages: WeddingPackageData[]; // Array of Packages
+  meal_prices: MealPriceData[]; // Array of Meal Prices
+  // created_by_user?: UserData; // 필요시 추가
+}
+
+// createAdminEstimate 컴포넌트는 이제 검색 결과를 목록으로 보여주고,
+// 선택된 항목의 상세 데이터를 관리하며, 수정 폼을 렌더링할 수 있습니다.
+export default function UpdateAdminEstimatePage() {
+  // 컴포넌트 이름 변경 고려
+  const [companySearchData, setCompanySearchData] = useState({
+    // 회사 검색 결과 데이터
+    name: "",
+    address: "",
+    mapx: "", // 현재 JSON에는 lat/lng이 있지만, NaverPlaceSearch 결과는 mapx/mapy일 수 있습니다.
+    mapy: "",
+  });
+
+  // 백엔드 검색 결과를 담을 상태 (간단 목록 또는 상세 목록)
+  const [estimateList, setEstimateList] = useState<DetailedEstimate[]>([]); // 상세 데이터 리스트로 변경
+
+  // 사용자가 목록에서 선택한 견적의 상세 데이터를 담을 상태
+  const [selectedEstimate, setSelectedEstimate] =
+    useState<DetailedEstimate | null>(null);
+
+  // 수정 폼을 보여줄지 말지를 결정하는 상태 (옵션)
+  const [showEditForm, setShowEditForm] = useState(false);
+
+  const handleSearchCompany = async () => {
+    // ... (기존 회사 검색 및 백엔드 호출 로직) ...
+    // 백엔드 응답이 DetailedEstimate[] 타입이라고 가정합니다.
+    // setEstimateData(estimateData.data); // 이전 코드
+    // setEstimateList(backendResponse.data); // DetailedEstimate[] 타입으로 설정
+    console.log("검색 결과 (DetailedEstimate[]):", estimateList); // 검색 결과 확인
+
+    // 검색 후 선택 상태 초기화
+    setSelectedEstimate(null);
+    setShowEditForm(false);
+
+    // 예시: 실제 백엔드 호출 코드 (Async/await 및 fetch 사용)
+    if (!companySearchData.name) {
+      console.error("회사 이름을 검색해주세요");
+      return; // 회사 이름 없으면 검색 안 함
+    }
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/get_admin_estimate`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ companyName: companySearchData.name }),
+        }
+      );
+
+      const result = await response.json(); // 백엔드 응답 형식 { message: string, data: DetailedEstimate[] }
+
+      if (!response.ok) {
+        // 에러 처리
+        console.error("백엔드 오류 응답:", result);
+        throw new Error(result.detail || "표준견적서 요청 실패");
+      }
+
+      console.log("표준 견적서 검색 성공:", result.data);
+      setEstimateList(result.data); // DetailedEstimate 객체들의 배열
+      console.log("result.data", result.data);
+    } catch (err) {
+      console.error("표준견적서 요청 에러 발생:", err);
+      // 사용자에게 에러 메시지 표시 (상태 변수 사용)
+    }
+  };
+
+  // 목록에서 특정 견적을 선택했을 때 호출되는 함수
+  const handleSelectEstimate = (item: DetailedEstimate) => {
+    console.log("선택된 견적 (DetailedEstimate 객체):", item);
+    setSelectedEstimate(item); // 선택된 견적 객체 전체를 상태에 저장
+    setShowEditForm(true); // 수정 폼을 보여주도록 상태 변경
+  };
+
+  // 선택된 견적 수정 완료 또는 취소 시 호출될 함수 (수정 폼에서 전달받아 실행)
+  const handleEditComplete = () => {
+    setSelectedEstimate(null); // 선택 상태 초기화
+    setShowEditForm(false); // 수정 폼 숨김
+    // 필요하다면 목록을 새로고침하는 로직 추가 (handleSearchCompany 다시 호출 등)
+    handleSearchCompany();
+  };
+
+  return (
+    <div className="w-full flex flex-col items-center justify-center mt-10 gap-5">
+      {/* 회사 검색 부분 */}
+      <div className="w-[600px] border-gray-400 border rounded-lg flex flex-col items-center justify-start px-6 py-4">
+        <h2 className="text-2xl font-semibold my-10">관리자 견적서 관리</h2>{" "}
+        {/* 제목 변경 고려 */}
+        <div className="w-full">
+          <NaverPlaceSearch
+            setCompanyData={setCompanySearchData}
+          ></NaverPlaceSearch>{" "}
+          {/* 상태 이름 변경 */}
+        </div>
+        {/* companySearchData의 name 필드가 채워졌는지 확인 후 버튼 활성화 */}
+        {companySearchData.name && (
+          <button
+            onClick={handleSearchCompany}
+            className="w-full h-10 rounded-lg bg-blue-500 text-white"
+          >
+            업체 견적 검색
+          </button>
+        )}
+      </div>
+
+      {/* 검색 결과 목록 표시 */}
+      {estimateList.length > 0 &&
+        !selectedEstimate && ( // 목록이 있고 선택되지 않았을 때만 보여줌
+          <div className="w-[600px] flex items-center justify-between flex-wrap gap-4">
+            {" "}
+            {/* 목록 레이아웃 조정 고려 */}
+            {estimateList.map((item) => (
+              <div
+                onClick={() => handleSelectEstimate(item)} // 객체 전체를 전달
+                key={item.id}
+                className="w-[180px] h-[80px] bg-white text-blue-500 border border-blue-500 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:font-semibold"
+              >
+                {/* 백엔드에서 받아온 상세 구조에 맞춰 hall.name 사용 */}
+                <p className="text-lg">{item.hall.name}</p>
+                {/* 다른 간단 정보 표시 가능 */}
+                <p className="text-sm text-gray-600">{item.date}</p>
+                <p className="text-sm textgray600">id : {item.id} 견적서</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+      {/* 선택된 견적의 상세 정보 표시 또는 수정 폼 렌더링 */}
+      {/* selectedEstimate 상태에 데이터가 채워지면 CreateStandardEstimate 폼을 수정 모드로 사용 */}
+      {showEditForm && selectedEstimate && (
+        // CreateStandardEstimate 컴포넌트를 재활용하거나 새로운 EditEstimateForm 컴포넌트를 만듭니다.
+        // 여기서는 CreateStandardEstimate 컴포넌트가 수정 모드로 작동한다고 가정하고 데이터를 prop으로 전달합니다.
+        // CreateStandardEstimate 컴포넌트 내부에서 이 데이터를 받아 상태를 초기화하는 로직이 필요합니다.
+        <UpdateAdminEstimate
+          initialData={selectedEstimate} // 받아온 상세 데이터를 prop으로 전달
+          onFormSubmit={() => {}} // 수정 완료 후 목록 새로고침 등의 처리를 위한 prop (필요시)
+          // 수정 완료/취소 버튼 등을 통해 handleEditComplete 호출 로직 필요
+        />
+      )}
+
+      {/* 검색 결과가 없거나 로딩 중일 때 메시지 표시 (선택 사항) */}
+      {/* {!estimateList.length && !selectedEstimate && !isLoading && <p>검색 결과가 없습니다.</p>} */}
+    </div>
+  );
+}
