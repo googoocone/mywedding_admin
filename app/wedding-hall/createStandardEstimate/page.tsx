@@ -48,7 +48,7 @@ export default function CreateStandardEstimate() {
 
   const [mealTypes, setMealTypes] = useState<
     { meal_type: string; category: string; price: number; extra: string }[]
-  >([{ meal_type: "", category: "성인", price: 0, extra: "" }]);
+  >([{ meal_type: "", category: "대인", price: 0, extra: "" }]);
 
   const [packageData, setPackageData] = useState({
     type: "스드메",
@@ -273,10 +273,10 @@ export default function CreateStandardEstimate() {
         />
 
         {/* Ceremony Times 텍스트 입력 */}
-        <label>운영 시간 : </label>
+        <label>예식 시간 : </label>
         <textarea
           name="ceremony_times"
-          placeholder="예: 10:00~11:00, 12:00~13:00"
+          placeholder="예: 10:00 / 11:00 / 12:00 / 13:00 / 14:00"
           className="w-full mb-4 p-2 border border-gray-300"
           value={companyData.ceremony_times}
           onChange={handleCompanyChange}
@@ -416,14 +416,16 @@ export default function CreateStandardEstimate() {
           <label className="block mb-1">대관료</label>
           <input
             type="text"
-            value={estimateData.hall_price}
-            onChange={(e) =>
+            value={estimateData.hall_price.toLocaleString("ko-KR")}
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, "");
+              const numeric = Number(value);
               setEstimateData({
                 ...estimateData,
-                hall_price: Number(e.target.value),
-              })
-            }
-            placeholder="예: 1000000"
+                hall_price: isNaN(numeric) ? 0 : numeric,
+              });
+            }}
+            placeholder="예: 1,000,000"
             className="w-full mb-2 p-2 border border-gray-300"
           />
 
@@ -488,7 +490,7 @@ export default function CreateStandardEstimate() {
                 }}
                 className="w-full mb-2 p-2 border border-gray-300"
               >
-                {["성인", "소인", "미취학", "주류"].map((c) => (
+                {["대인", "소인", "미취학", "음/주류"].map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -497,14 +499,16 @@ export default function CreateStandardEstimate() {
 
               <label className="block mb-1">가격</label>
               <input
-                type="number"
-                value={meal.price}
+                type="text"
+                value={meal.price.toLocaleString("ko-KR")}
                 onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   const updated = [...mealTypes];
-                  updated[index].price = Number(e.target.value);
+                  updated[index].price = isNaN(numeric) ? 0 : numeric;
                   setMealTypes(updated);
                 }}
-                placeholder="예: 50000"
+                placeholder="예: 50,000"
                 className="w-full mb-2 p-2 border border-gray-300"
               />
 
@@ -539,7 +543,7 @@ export default function CreateStandardEstimate() {
             onClick={() =>
               setMealTypes([
                 ...mealTypes,
-                { meal_type: "", category: "성인", price: 0, extra: "" },
+                { meal_type: "", category: "대인", price: 0, extra: "" },
               ])
             }
             className="w-full bg-green-500 text-white p-2 rounded hover:font-semibold cursor-pointer"
@@ -560,7 +564,7 @@ export default function CreateStandardEstimate() {
             }
             className="w-full mb-2 p-2 border border-gray-300"
           >
-            {["스드메", "개별"].map((t) => (
+            {["스드메", "개별 금액"].map((t) => (
               <option key={t} value={t}>
                 {t}
               </option>
@@ -599,15 +603,17 @@ export default function CreateStandardEstimate() {
             <>
               <label className="block mb-1">총 가격</label>
               <input
-                type="number"
-                value={packageData.total_price}
-                onChange={(e) =>
+                type="text"
+                value={packageData.total_price.toLocaleString("ko-KR")}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   setPackageData({
                     ...packageData,
-                    total_price: Number(e.target.value),
-                  })
-                }
-                placeholder="예: 2000000"
+                    total_price: isNaN(numeric) ? 0 : numeric,
+                  });
+                }}
+                placeholder="예: 2,000,000"
                 className="w-full mb-2 p-2 border border-gray-300"
               />
             </>
@@ -673,15 +679,18 @@ export default function CreateStandardEstimate() {
               <label className="block mb-1">가격</label>
               <input
                 type="text"
-                value={item.price}
+                value={item.price.toLocaleString("ko-KR")}
                 onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   const updated = [...packageItems];
-                  updated[index].price = Number(e.target.value);
+                  updated[index].price = isNaN(numeric) ? 0 : numeric;
                   setPackageItems(updated);
                 }}
+                placeholder="예: 300,000"
                 className="w-full mb-2 p-2 border border-gray-300"
-                placeholder="예: 500000, 숫자만 입력"
               />
+
               <label className="block mb-1">참고 URL</label>
               <input
                 type="text"
@@ -765,15 +774,17 @@ export default function CreateStandardEstimate() {
 
               <label className="block mb-1">가격</label>
               <input
-                type="number"
-                value={option.price}
+                type="text"
+                value={option.price.toLocaleString("ko-KR")}
                 onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   const updated = [...estimateOptions];
-                  updated[index].price = Number(e.target.value);
+                  updated[index].price = isNaN(numeric) ? 0 : numeric;
                   setEstimateOptions(updated);
                 }}
+                placeholder="예: 100,000"
                 className="w-full mb-2 p-2 border border-gray-300"
-                placeholder="예: 100000"
               />
 
               <label className="block mb-1">필수 여부</label>

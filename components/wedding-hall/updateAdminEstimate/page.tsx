@@ -442,13 +442,13 @@ export default function UpdateAdminEstimate({
             placeholder="전화번호"
           />
           {/* ... 나머지 companyData 수정 필드들 (homepage, accessibility) ... */}
-          <label>운영 시간</label>
+          <label>예식 시간</label>
           <textarea
             readOnly
             name="ceremony_times"
             value={companyData.ceremony_times}
             className="w-full mb-4 p-2 border border-gray-300"
-            placeholder="예: 10:00~11:00"
+            placeholder="예: 10:00 / 11:00 / 12:00 / 13:00 / 14:00"
           />
         </fieldset>
         {/* 홀 정보 필드셋 */}

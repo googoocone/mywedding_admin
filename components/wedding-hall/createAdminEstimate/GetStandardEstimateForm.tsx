@@ -93,7 +93,7 @@ export default function GetStandardEstimate({
       price: number;
       extra: string;
     }[] // 수정 시 id 포함될 수 있음
-  >([{ meal_type: "", category: "성인", price: 0, extra: "" }]); // 기본 항목 (initialData 없을 때)
+  >([{ meal_type: "", category: "대인", price: 0, extra: "" }]); // 기본 항목 (initialData 없을 때)
 
   // 웨딩 패키지 상태 (단일 객체로 가정, 백엔드는 배열) - 백엔드 구조에 맞춰 배열로 관리하는 것이 더 정확할 수 있습니다.
   // 현재는 단일 객체로 가정하고 initialData의 첫 번째 패키지를 사용합니다.
@@ -184,7 +184,7 @@ export default function GetStandardEstimate({
         initialData.meal_prices.map((item) => ({
           id: item.id, // 기존 항목 ID 포함
           meal_type: item.meal_type || "",
-          category: item.category || "성인", // Enum string
+          category: item.category || "대인", // Enum string
           price: item.price ?? 0,
           extra: item.extra || "",
         }))
@@ -277,7 +277,7 @@ export default function GetStandardEstimate({
         type: "standard",
         date: "",
       });
-      setMealTypes([{ meal_type: "", category: "성인", price: 0, extra: "" }]);
+      setMealTypes([{ meal_type: "", category: "대인", price: 0, extra: "" }]);
       setPackageData({
         type: "스드메",
         name: "",
@@ -489,13 +489,13 @@ export default function GetStandardEstimate({
             placeholder="전화번호"
           />
           {/* ... 나머지 companyData 수정 필드들 (homepage, accessibility) ... */}
-          <label>운영 시간</label>
+          <label>예식 시간</label>
           <textarea
             readOnly
             name="ceremony_times"
             value={companyData.ceremony_times}
             className="w-full mb-4 p-2 border border-gray-300"
-            placeholder="예: 10:00~11:00"
+            placeholder="예: 10:00 / 11:00 / 12:00 / 13:00 / 14:00 "
           />
         </fieldset>
         {/* 홀 정보 필드셋 */}
@@ -636,15 +636,17 @@ export default function GetStandardEstimate({
           {/* estimateData 필드들 (대관료, 종류, 날짜) */}
           <label className="block mb-1">대관료</label>
           <input
-            type="number"
-            value={estimateData.hall_price}
-            onChange={(e) =>
+            type="text"
+            value={estimateData.hall_price.toLocaleString("ko-KR")}
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, "");
+              const numeric = Number(value);
               setEstimateData({
                 ...estimateData,
-                hall_price: Number(e.target.value),
-              })
-            }
-            placeholder="예: 1000000"
+                hall_price: isNaN(numeric) ? 0 : numeric,
+              });
+            }}
+            placeholder="예: 1,000,000"
             className="w-full mb-2 p-2 border border-gray-300"
           />
 
@@ -722,7 +724,7 @@ export default function GetStandardEstimate({
                 className="w-full mb-2 p-2 border border-gray-300"
               >
                 {/* 옵션들은 models/enums.py 의 MealCategoryEnum 에 맞춰야 함 */}
-                {["성인", "소인", "미취학", "주류"].map((c) => (
+                {["대인", "소인", "미취학", "음/주류"].map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -731,14 +733,16 @@ export default function GetStandardEstimate({
               {/* 가격 */}
               <label className="block mb-1">가격</label>
               <input
-                type="number"
-                value={meal.price}
+                type="text"
+                value={meal.price.toLocaleString("ko-KR")}
                 onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   const updated = [...mealTypes];
-                  updated[index].price = Number(e.target.value);
+                  updated[index].price = isNaN(numeric) ? 0 : numeric;
                   setMealTypes(updated);
                 }}
-                placeholder="예: 50000"
+                placeholder="예: 50,000"
                 className="w-full mb-2 p-2 border border-gray-300"
               />
               {/* 비고 */}
@@ -762,7 +766,7 @@ export default function GetStandardEstimate({
             onClick={() =>
               setMealTypes([
                 ...mealTypes,
-                { meal_type: "", category: "성인", price: 0, extra: "" },
+                { meal_type: "", category: "대인", price: 0, extra: "" },
               ])
             }
             className="w-full bg-green-500 text-white p-2 rounded hover:font-semibold cursor-pointer"
@@ -824,15 +828,17 @@ export default function GetStandardEstimate({
             <>
               <label className="block mb-1">총 가격</label>
               <input
-                type="number"
-                value={packageData.total_price}
-                onChange={(e) =>
+                type="text"
+                value={packageData.total_price.toLocaleString("ko-KR")}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   setPackageData({
                     ...packageData,
-                    total_price: Number(e.target.value),
-                  })
-                }
-                placeholder="예: 2000000"
+                    total_price: isNaN(numeric) ? 0 : numeric,
+                  });
+                }}
+                placeholder="예: 2,000,000"
                 className="w-full mb-2 p-2 border border-gray-300"
               />
             </>
@@ -904,15 +910,17 @@ export default function GetStandardEstimate({
                 {/* 가격 */}
                 <label className="block mb-1">가격</label>
                 <input
-                  type="number"
-                  value={item.price}
+                  type="text"
+                  value={item.price.toLocaleString("ko-KR")}
                   onChange={(e) => {
+                    const value = e.target.value.replace(/,/g, "");
+                    const numeric = Number(value);
                     const updated = [...packageItems];
-                    updated[index].price = Number(e.target.value);
+                    updated[index].price = isNaN(numeric) ? 0 : numeric;
                     setPackageItems(updated);
                   }}
+                  placeholder="예: 300,000"
                   className="w-full mb-2 p-2 border border-gray-300"
-                  placeholder="예: 500000"
                 />
 
                 {/* 참고 URL */}
@@ -1005,14 +1013,16 @@ export default function GetStandardEstimate({
               {/* 가격 */}
               <label className="block mb-1">가격</label>
               <input
-                type="number"
-                value={option.price}
+                type="text"
+                value={option.price.toLocaleString("ko-KR")}
                 onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   const updated = [...estimateOptions];
-                  updated[index].price = Number(e.target.value);
+                  updated[index].price = isNaN(numeric) ? 0 : numeric;
                   setEstimateOptions(updated);
                 }}
-                placeholder="예: 100000"
+                placeholder="예: 100,000"
                 className="w-full mb-2 p-2 border border-gray-300"
               />
 
