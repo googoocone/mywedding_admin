@@ -107,6 +107,9 @@ interface DetailedEstimate {
   type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
   created_by_user_id?: string | null; // UUID 같은 경우 string
   hall: HallData; // Nested Hall Data
+  time: string | null;
+  penalty_amount: number | null;
+  penlaty_detail: string | null;
   estimate_options: EstimateOptionData[]; // Array of Options
   etcs: EtcData[]; // Array of Etc
   wedding_packages: WeddingPackageData[]; // Array of Packages

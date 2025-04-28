@@ -11,18 +11,22 @@ const menuItem = [
     name: "웨딩홀",
     submenu: [
       {
-        name: "웨딩홀 표준견적서 등록",
+        name: "표준견적서 등록",
         href: "/wedding-hall/createStandardEstimate",
       },
       {
-        name: "웨딩홀 관리자 견적서 등록",
+        name: "표준견적서 조회",
+        href: "/wedding-hall/statusStandardEstimate",
+      },
+      {
+        name: "관리자 견적서 등록",
         href: "/wedding-hall/createAdminEstimate",
       },
       {
-        name: "웨딩홀 관리자견적서 수정/삭제",
+        name: "관리자견적서 수정",
         href: "/wedding-hall/updateAdminEstimate",
       },
-      { name: "웨딩홀 현황", href: "/wedding-hall/status" },
+      { name: "관리자견적서 삭제", href: "/wedding-hall/deleteAdminEstimate" },
     ],
   },
   { name: "로그인", href: "/login" },
@@ -32,7 +36,7 @@ export default function Sidebar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   return (
-    <div className="w-[240px] h-full bg-white border-r p-4 flex flex-col items-center justify-start">
+    <div className="w-[260px] h-full bg-white border-r p-4 flex flex-col items-center justify-start">
       <div className="h-40 flex items-center justify-center text-2xl font-semibold">
         관리자 페이지
       </div>

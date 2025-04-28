@@ -44,6 +44,9 @@ export default function CreateStandardEstimate() {
     meal_type: "",
     type: "standard",
     date: "",
+    time: "", //"HH:MM으로 저장할 예정"
+    penalty_amount: 0,
+    penalty_detail: "",
   });
 
   const [mealTypes, setMealTypes] = useState<
@@ -459,6 +462,46 @@ export default function CreateStandardEstimate() {
             }
             className="w-full mb-2 p-2 border border-gray-300"
           />
+
+          <label className="block mb-1">예식 시작 시간</label>
+          <input
+            type="time"
+            value={estimateData.time}
+            onChange={(e) =>
+              setEstimateData({
+                ...estimateData,
+                time: e.target.value,
+              })
+            }
+            className="w-[200px] h-[40px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+
+          <label className="block mb-1">계약금</label>
+          <input
+            type="text"
+            value={estimateData.penalty_amount.toLocaleString("ko-KR")}
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, "");
+              const numeric = Number(value);
+              setEstimateData({
+                ...estimateData,
+                penalty_amount: isNaN(numeric) ? 0 : numeric,
+              });
+            }}
+            className="w-full h-[40px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+
+          <label className="block mb-1">계약금 조항</label>
+          <textarea
+            value={estimateData.penalty_detail}
+            onChange={(e) =>
+              setEstimateData({
+                ...estimateData,
+                penalty_detail: e.target.value,
+              })
+            }
+            className="w-full h-[160px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
         </fieldset>
 
         {/* 식대 정보 */}
@@ -490,7 +533,7 @@ export default function CreateStandardEstimate() {
                 }}
                 className="w-full mb-2 p-2 border border-gray-300"
               >
-                {["대인", "소인", "미취학", "음/주류"].map((c) => (
+                {["대인", "소인", "미취학", "음주류"].map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>

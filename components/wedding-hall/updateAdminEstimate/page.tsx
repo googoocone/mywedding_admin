@@ -59,6 +59,9 @@ export default function UpdateAdminEstimate({
     meal_type: "", // 이 필드의 목적에 따라 initialData에서 값을 가져와야 함 (MealPrice 배열과 다름)
     type: "admin", // 기본값
     date: "", // ISO 날짜 문자열
+    time: "",
+    penalty_amount: 0,
+    penalty_detail: "",
   });
 
   // 식대 항목 목록 상태
@@ -70,7 +73,7 @@ export default function UpdateAdminEstimate({
       price: number;
       extra: string;
     }[] // 수정 시 id 포함될 수 있음
-  >([{ meal_type: "", category: "성인", price: 0, extra: "" }]); // 기본 항목 (initialData 없을 때)
+  >([{ meal_type: "", category: "대인", price: 0, extra: "" }]); // 기본 항목 (initialData 없을 때)
 
   // 웨딩 패키지 상태 (단일 객체로 가정, 백엔드는 배열) - 백엔드 구조에 맞춰 배열로 관리하는 것이 더 정확할 수 있습니다.
   // 현재는 단일 객체로 가정하고 initialData의 첫 번째 패키지를 사용합니다.
@@ -154,6 +157,9 @@ export default function UpdateAdminEstimate({
         meal_type: "", // initialData에 estimateData.meal_type 필드가 없으므로 기본값
         type: initialData.type || "admin", // Enum string
         date: initialData.date || "", // ISO 날짜 문자열
+        time: initialData.time || "",
+        penalty_amount: initialData.penalty_amount || 0,
+        penalty_detail: initialData.penalty_details || "",
       });
 
       // 식대 항목 목록 초기화 (Array of MealPriceData)
@@ -161,7 +167,7 @@ export default function UpdateAdminEstimate({
         initialData.meal_prices.map((item) => ({
           id: item.id, // 기존 항목 ID 포함
           meal_type: item.meal_type || "",
-          category: item.category || "성인", // Enum string
+          category: item.category || "대인", // Enum string
           price: item.price ?? 0,
           extra: item.extra || "",
         }))
@@ -244,8 +250,11 @@ export default function UpdateAdminEstimate({
         meal_type: "",
         type: "admin",
         date: "",
+        time: "",
+        penalty_amount: 0,
+        penalty_detail: "",
       });
-      setMealTypes([{ meal_type: "", category: "성인", price: 0, extra: "" }]);
+      setMealTypes([{ meal_type: "", category: "대인", price: 0, extra: "" }]);
       setPackageData({
         type: "스드메",
         name: "",
@@ -626,6 +635,43 @@ export default function UpdateAdminEstimate({
             }
             className="w-full mb-2 p-2 border border-gray-300"
           />
+          <label className="block mb-1">예식 시작 시간</label>
+          <input
+            type="time"
+            value={estimateData.time}
+            onChange={(e) =>
+              setEstimateData({
+                ...estimateData,
+                time: e.target.value,
+              })
+            }
+            className="w-[200px] h-[40px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <label className="block mb-1">계약금</label>
+          <input
+            type="text"
+            value={estimateData.penalty_amount.toLocaleString("ko-KR")}
+            className="w-[200px] h-[40px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, "");
+              const numeric = Number(value);
+              setEstimateData({
+                ...estimateData,
+                penalty_amount: isNaN(numeric) ? 0 : numeric,
+              });
+            }}
+          ></input>
+          <label className="block mb-1">계약금 조항</label>
+          <textarea
+            value={estimateData.penalty_detail}
+            onChange={(e) =>
+              setEstimateData({
+                ...estimateData,
+                penalty_detail: e.target.value,
+              })
+            }
+            className="w-full h-[160px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
         </fieldset>
         {/* 식대 정보 필드셋 */}
         <fieldset className="mb-4 p-4 border border-gray-200">
@@ -675,7 +721,7 @@ export default function UpdateAdminEstimate({
                 className="w-full mb-2 p-2 border border-gray-300"
               >
                 {/* 옵션들은 models/enums.py 의 MealCategoryEnum 에 맞춰야 함 */}
-                {["성인", "소인", "미취학", "주류"].map((c) => (
+                {["대인", "소인", "미취학", "음주류"].map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -715,7 +761,7 @@ export default function UpdateAdminEstimate({
             onClick={() =>
               setMealTypes([
                 ...mealTypes,
-                { meal_type: "", category: "성인", price: 0, extra: "" },
+                { meal_type: "", category: "대인", price: 0, extra: "" },
               ])
             }
             className="w-full bg-green-500 text-white p-2 rounded hover:font-semibold cursor-pointer"

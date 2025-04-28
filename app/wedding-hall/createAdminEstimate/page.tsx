@@ -105,6 +105,9 @@ interface DetailedEstimate {
   date?: string | null; // 날짜는 Date 객체로 변환할 수도 있습니다.
   id: number;
   type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
+  time: string | null;
+  penalty_amount: number | null;
+  penalty_detail: string | null;
   created_by_user_id?: string | null; // UUID 같은 경우 string
   hall: HallData; // Nested Hall Data
   estimate_options: EstimateOptionData[]; // Array of Options
@@ -198,7 +201,7 @@ export default function CreateAdminEstimatePage() {
     <div className="w-full flex flex-col items-center justify-center mt-10 gap-5">
       {/* 회사 검색 부분 */}
       <div className="w-[600px] border-gray-400 border rounded-lg flex flex-col items-center justify-start px-6 py-4">
-        <h2 className="text-2xl font-semibold my-10">관리자 견적서 관리</h2>{" "}
+        <h2 className="text-2xl font-semibold my-10">관리자 견적서 등록</h2>{" "}
         {/* 제목 변경 고려 */}
         <div className="w-full">
           <NaverPlaceSearch

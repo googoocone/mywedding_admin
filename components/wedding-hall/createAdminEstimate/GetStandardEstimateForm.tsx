@@ -41,14 +41,6 @@ export default function GetStandardEstimate({
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // 사진 미리보기 URL 상태 (initialData의 URL로 초기화)
-  const [mainPhotoPreviewUrl, setMainPhotoPreviewUrl] = useState<string | null>(
-    null
-  ); // 대표 사진 URL
-  const [subPhotoPreviewUrls, setSubPhotoPreviewUrls] = useState<
-    (string | null)[]
-  >([]); // 추가 사진 URL들
-
   // 회사 정보 상태
   const [companyData, setCompanyData] = useState({
     name: "",
@@ -82,6 +74,9 @@ export default function GetStandardEstimate({
     meal_type: "", // 이 필드의 목적에 따라 initialData에서 값을 가져와야 함 (MealPrice 배열과 다름)
     type: "standard", // 기본값
     date: "", // ISO 날짜 문자열
+    time: "",
+    penalty_amount: 0,
+    penalty_detail: "",
   });
 
   // 식대 항목 목록 상태
@@ -177,6 +172,9 @@ export default function GetStandardEstimate({
         meal_type: "", // initialData에 estimateData.meal_type 필드가 없으므로 기본값
         type: initialData.type || "standard", // Enum string
         date: initialData.date || "", // ISO 날짜 문자열
+        time: initialData.time || "",
+        penalty_amount: initialData.penalty_amount || 0,
+        penalty_detail: initialData.penalty_details || "",
       });
 
       // 식대 항목 목록 초기화 (Array of MealPriceData)
@@ -240,15 +238,6 @@ export default function GetStandardEstimate({
       setEtcData({
         content: initialData.etcs.map((item) => item.content).join("\n") || "", // 여러 항목 내용을 줄바꿈으로 합침
       });
-
-      // 사진 URL 상태 초기화 (File 객체는 로드하지 않음)
-      const main = initialData.hall.hall_photos.find((p) => p.order_num === 1);
-      setMainPhotoPreviewUrl(main?.url || null);
-
-      const subs = initialData.hall.hall_photos
-        .filter((p) => p.order_num !== 1)
-        .map((p) => p.url);
-      setSubPhotoPreviewUrls(subs);
     } else {
       // initialData가 null일 경우 (등록 모드) 모든 상태를 기본값으로 초기화합니다.
       // (위에 정의된 useState 초기값과 동일하게 설정)
@@ -276,6 +265,9 @@ export default function GetStandardEstimate({
         meal_type: "",
         type: "standard",
         date: "",
+        time: "",
+        penalty_amount: 0,
+        penalty_detail: "",
       });
       setMealTypes([{ meal_type: "", category: "대인", price: 0, extra: "" }]);
       setPackageData({
@@ -287,8 +279,6 @@ export default function GetStandardEstimate({
       setPackageItems([]);
       setEstimateOptions([]); // 등록 모드 기본값은 빈 배열
       setEtcData({ content: "" });
-      setMainPhotoPreviewUrl(null);
-      setSubPhotoPreviewUrls([]);
     }
   }, [initialData]); // initialData prop이 변경될 때마다 이 훅 실행
 
@@ -322,6 +312,9 @@ export default function GetStandardEstimate({
       hall_price: estimateData.hall_price,
       type: estimateData.type,
       date: estimateData.date,
+      time: estimateData.time,
+      penalty_amount: estimateData.penalty_amount,
+      penalty_detail: estimateData.penalty_detail,
 
       etcs:
         etcData.content.trim() !== ""
@@ -427,7 +420,7 @@ export default function GetStandardEstimate({
       }
 
       // 성공 메시지 및 후처리
-      setSuccessMessage(`견적서 수정 성공!`);
+      setSuccessMessage(`견적서 등록 성공!`);
       onFormSubmit && onFormSubmit(result, true); // 수정 완료임을 알림
     } catch (err: any) {
       console.error("API request failed:", err);
@@ -441,7 +434,7 @@ export default function GetStandardEstimate({
   // 사진 업로드 필드는 제거하고 받아온 사진 URL만 보여줍니다.
   // 이 컴포넌트가 관리자 수정 전용이므로 initialData가 항상 있다고 가정하고 렌더링합니다.
 
-  const formTitle = "관리자 견적서 수정"; // 제목 고정
+  const formTitle = "관리자 견적서 등록"; // 제목 고정
 
   return (
     <div
@@ -675,6 +668,44 @@ export default function GetStandardEstimate({
             }
             className="w-full mb-2 p-2 border border-gray-300"
           />
+          <label className="block mb-1">예식 시작 시간</label>
+          <input
+            type="time"
+            value={estimateData.time}
+            onChange={(e) =>
+              setEstimateData({
+                ...estimateData,
+                time: e.target.value,
+              })
+            }
+            className="w-[200px] h-[40px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+
+          <label className="block mb-1">계약금</label>
+          <input
+            type="text"
+            value={estimateData.penalty_amount.toLocaleString("ko-KR")}
+            className="w-[200px] h-[40px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, "");
+              const numeric = Number(value);
+              setEstimateData({
+                ...estimateData,
+                penalty_amount: isNaN(numeric) ? 0 : numeric,
+              });
+            }}
+          ></input>
+          <label className="block mb-1">계약금 조항</label>
+          <textarea
+            value={estimateData.penalty_detail}
+            onChange={(e) =>
+              setEstimateData({
+                ...estimateData,
+                penalty_detail: e.target.value,
+              })
+            }
+            className="w-full h-[160px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
         </fieldset>
         {/* 식대 정보 필드셋 */}
         <fieldset className="mb-4 p-4 border border-gray-200">
@@ -724,7 +755,7 @@ export default function GetStandardEstimate({
                 className="w-full mb-2 p-2 border border-gray-300"
               >
                 {/* 옵션들은 models/enums.py 의 MealCategoryEnum 에 맞춰야 함 */}
-                {["대인", "소인", "미취학", "음/주류"].map((c) => (
+                {["대인", "소인", "미취학", "음주류"].map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
@@ -1106,82 +1137,29 @@ export default function GetStandardEstimate({
           />
         </fieldset>
         {/* 사진 관리 섹션 (읽기 전용) - initialData가 있을 때만 표시 */}
-        {initialData && (
-          <fieldset className="mb-4 p-4 border border-gray-200">
-            <legend className="text-xl font-semibold">
-              🖼️ 웨딩홀 사진 (대표 견적서)
-            </legend>
-
-            {/* 대표 사진 미리보기 */}
-            <div className="mb-8">
-              <label className=" block mb-1 font-medium">대표 사진 (1장)</label>
-              {mainPhotoPreviewUrl && (
-                <div className="relative w-48 h-48">
-                  <img
-                    src={mainPhotoPreviewUrl}
-                    alt="대표 사진"
-                    className="w-full h-full object-cover rounded border"
-                  />
-                </div>
-              )}
-              {!mainPhotoPreviewUrl && (
-                <div className="w-48 h-48 border rounded flex items-center justify-center text-gray-500">
-                  사진 없음
-                </div>
-              )}
-            </div>
-
-            {/* 추가 사진 미리보기 */}
-            <div>
-              <label className="block mb-1 font-medium">추가 사진</label>
-              <div className="grid grid-cols-3 gap-4">
-                {subPhotoPreviewUrls.map(
-                  (src, index) =>
-                    src && (
-                      <div key={src || index} className="relative w-32 h-32">
-                        <img
-                          src={src}
-                          alt={`추가 사진 ${index + 1}`}
-                          className="w-full h-full object-cover rounded border"
-                        />
-                      </div>
-                    )
-                )}
-                {subPhotoPreviewUrls.length === 0 && (
-                  <div className="w-32 h-32 border rounded flex items-center justify-center text-gray-500">
-                    추가 사진 없음
-                  </div>
-                )}
-              </div>
-            </div>
-          </fieldset>
-        )}
-                {/* Feedback & Submit */}       {" "}
-        {error && <p className="text-red-500 cursor-pointer">{error}</p>}       {" "}
+        {/* Feedback & Submit */}{" "}
+        {error && <p className="text-red-500 cursor-pointer">{error}</p>}{" "}
         {successMessage && (
           <p className="text-green-500 cursor-pointer">{successMessage}</p>
-        )}
-               {" "}
+        )}{" "}
         <button
           type="submit"
           disabled={isLoading}
           className="w-full bg-blue-500 text-white p-3 rounded cursor-pointer"
         >
-                    {isLoading ? "처리 중..." : "수정 완료"}       {" "}
+          {isLoading ? "처리 중..." : "수정 완료"}{" "}
         </button>
-                 {/* 취소 버튼 */}         
+        {/* 취소 버튼 */}
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             className="w-full bg-gray-400 text-white p-3 rounded cursor-pointer mt-2"
           >
-                             취소              
+            취소
           </button>
-        )}
-             {" "}
-      </form>
-         {" "}
+        )}{" "}
+      </form>{" "}
     </div>
   );
 }

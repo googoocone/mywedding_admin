@@ -9,7 +9,7 @@
 type HallType = "야외" | "호텔" | "가든" | "스몰" | "하우스" | "컨벤션" | "채플";
 type MoodType = "밝은" | "어두운";
 type EstimateType = "standard" | "admin" | "user";
-type MealCategory = "성인" | "소인" | "미취학" | "주류";
+type MealCategory = "대인" | "소인" | "미취학" | "음주류";
 type PackageType = "스드메" | "개별"; // 스키마에는 '스드메 통합' -> '스드메' 로 변경된 것 같습니다.
 type PackageItemType = "스튜디오" | "드레스" | "메이크업";
 
@@ -120,11 +120,15 @@ export interface WeddingPackageData {
 // DetailedEstimate 모델 정보 (백엔드 응답의 각 항목에 해당)
 // 이게 프론트엔드에서 'Estimate' 또는 'DetailedEstimate' 타입으로 사용될 메인 인터페이스입니다.
 export interface DetailedEstimate {
+    penalty: any;
     id: number; // 견적서 ID
     hall_id: number; // 홀 ID
     hall_price: number | null; // 대관료
     type: EstimateType | null; // 견적서 종류 (Enum 타입 사용)
     date: string | null; // 날짜 (ISO string 형식으로 넘어옴)
+    time : string | null;
+    penalty_amount : number | null;
+    penalty_details : string | null;
     created_by_user_id: string | null; // 작성자 ID (String UUID 등)
 
     // 관계된 정보들이 Nested 객체 또는 배열로 포함됩니다.
