@@ -43,54 +43,94 @@ const generateId = () =>
 
 // --- 개별 사진 아이템 컴포넌트 (Draggable + Sortable) ---
 function SortablePhotoItem({
-  photo,
-  onRemove,
+  photo, // 표시할 사진 데이터 (id, preview 등 포함)
+  onRemove, // 삭제 버튼 클릭 시 호출될 함수
 }: {
-  photo: SubPhotoItem;
-  onRemove: (id: string) => void; // id를 받아 삭제 처리
+  photo: any; // photo prop의 타입 (정확한 SubPhotoItem 타입 사용 권장)
+  onRemove: (id: any) => void; // onRemove 함수의 타입 (id 타입도 정확히 명시 권장)
 }) {
+  // useSortable 훅을 사용하여 정렬 가능한 항목으로 만듭니다.
   const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging, // 드래그 중 상태
-  } = useSortable({ id: photo.id }); // 고유 id 전달
+    attributes, // 드래그 가능한 요소에 필요한 HTML 속성
+    listeners, // 드래그 이벤트를 감지하는 이벤트 리스너 (이 요소에 연결)
+    setNodeRef, // 드래그 가능한 DOM 노드를 dnd-kit에 연결하는 ref
+    transform, // 드래그 시 항목의 위치 변화 (transform 스타일 객체)
+    transition, // 드래그 후 원래 위치로 돌아올 때 부드러운 전환 효과 (transition 스타일 문자열)
+    isDragging, // 현재 이 항목이 드래그 중인지 여부를 나타내는 boolean 값
+  } = useSortable({
+    id: photo.id, // photo 객체의 고유 id를 useSortable에 전달
+
+    // ✅ shouldCancelStart 함수를 사용하여 드래그 시작을 취소할지 결정합니다.
+    // 드래그 시작 이벤트 (activatorEvent)가 발생한 원래 요소 (target)를 확인하여 처리합니다.
+    // shouldCancelStart: (event: DragEvent) => {
+    //   // 이벤트가 발생한 원래 DOM 요소를 가져옵니다. (드래그/클릭이 시작된 정확한 요소)
+    //   const originalTarget = event.activatorEvent.target as HTMLElement;
+
+    //   // 원래 이벤트 타겟부터 드래그 가능한 요소 (event.activatorEvent.currentTarget)까지
+    //   // 부모 노드를 거슬러 올라가며 확인합니다.
+    //   let currentElement: HTMLElement | null = originalTarget;
+    //   while (
+    //     currentElement &&
+    //     currentElement !== event.activatorEvent.currentTarget
+    //   ) {
+    //     // 만약 현재 요소가 BUTTON 태그이거나
+    //     // data-dnd-kit-disabled-dnd="true" 속성을 가지고 있다면
+    //     if (
+    //       currentElement.tagName === "BUTTON" || // 버튼 태그인지 확인
+    //       currentElement.dataset.dndKitDisabledDnd === "true" // 속성 확인
+    //     ) {
+    //       console.log(
+    //         "Drag cancelled: Original click/touch was on delete button or disabled element."
+    //       );
+    //       return true; // 드래그 시작을 취소합니다.
+    //     }
+    //     // 다음 부모 요소로 이동합니다.
+    //     currentElement = currentElement.parentElement;
+    //   }
+
+    //   return false;
+    // },
+  }); // dnd-kit이 계산한 transform과 transition 스타일을 항목에 적용합니다.
 
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform), // 이동 효과
-    transition, // 부드러운 전환 효과
-    opacity: isDragging ? 0.7 : 1, // 드래그 중 투명도 조절
-    zIndex: isDragging ? 10 : "auto", // 드래그 중인 아이템이 위로 올라오도록
+    transform: CSS.Transform.toString(transform), // transform 객체를 CSS transform 문자열로 변환
+    transition, // transition 스타일 적용
+    opacity: isDragging ? 0.7 : 1, // 드래그 중일 때 투명도 조절
+    zIndex: isDragging ? 10 : "auto", // 드래그 중인 항목이 다른 항목들 위로 올라오도록 z-index 설정
+    touchAction: "none", // 터치 장치에서 기본 스크롤/확대 동작을 방지하여 드래그를 원활하게 합니다. (dnd-kit 권장)
   };
 
   return (
-    // 이 div가 드래그 가능한 요소가 됨
-    <div
-      ref={setNodeRef} // dnd-kit이 DOM 노드를 참조하도록 설정
-      style={style} // dnd-kit이 계산한 스타일 적용
-      {...attributes} // 접근성 속성 등 적용
-      {...listeners} // 드래그 이벤트를 감지하는 리스너 적용
-      className="relative w-28 h-28 touch-none border border-gray-200 rounded overflow-hidden" // 기본 스타일 및 테두리
-    >
-      <img
-        src={photo.preview}
-        alt={`추가 사진`}
-        className="w-full h-full object-cover" // 이미지가 div를 꽉 채우도록
-      />
+    // 이 div 요소가 dnd-kit에 의해 드래그 가능한 항목으로 관리됩니다.
+    // ref, style, attributes, listeners를 이 요소에 연결합니다.
+    <div className="relative">
+      <div
+        ref={setNodeRef} // dnd-kit과 DOM 노드 연결
+        style={style} // dnd-kit 스타일 적용
+        {...attributes} // 접근성 및 드래그 속성
+        {...listeners} // 드래그 이벤트 리스너
+        className="relative w-28 h-28 border border-gray-200 rounded overflow-hidden" // 항목의 기본 크기, 테두리, 모양 스타일
+      >
+        {/* 사진 이미지 */}
+        <img
+          src={photo.preview} // 사진 이미지 소스 URL (photo 객체의 preview 속성 사용)
+          alt={`추가 사진`} // 이미지 설명 (접근성 및 이미지가 로드되지 않았을 때 표시)
+          className="w-full h-full object-cover" // 이미지가 부모 div를 꽉 채우면서 비율을 유지하도록 설정
+        />
+      </div>
       {/* 삭제 버튼 */}
       <button
-        type="button"
-        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center z-20 cursor-pointer p-0 leading-none" // 크기 및 스타일 미세 조정
+        type="button" // 버튼의 type을 명시합니다.
+        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-10 h-5 text-xs flex items-center justify-center z-55 cursor-pointer p-0 leading-none" // 버튼의 스타일
         onClick={(e) => {
-          e.preventDefault(); // 기본 동작 방지
-          e.stopPropagation(); // 이벤트 버블링 방지 (드래그 시작 방지)
-          onRemove(photo.id); // id로 삭제 함수 호출
+          e.preventDefault();
+          e.stopPropagation();
+          onRemove(photo.id);
         }}
-        aria-label="사진 삭제" // 접근성 레이블
+        aria-label="사진 삭제" // 접근성 레이블 // 이 속성은 shouldCancelStart 함수에서 클릭된 요소인지 확인하는 데 사용됩니다.
+        data-dnd-kit-disabled-dnd="true"
       >
-        ×
+        삭제
       </button>
     </div>
   );
@@ -367,7 +407,6 @@ export default function CreateStandardEstimate() {
   // --- JSX 렌더링 ---
   return (
     <div className="max-w-2xl mx-auto my-8 p-6 border border-gray-300 rounded-lg shadow-md">
-      {" "}
       {/* Tailwind 스타일 적용 */}
       <h1 className="text-center text-2xl font-semibold mt-5 mb-10">
         웨딩 업체 표준견적서 등록
@@ -383,7 +422,6 @@ export default function CreateStandardEstimate() {
           주소 :
         </label>
         <div className="w-full min-h-[2.5rem] p-2 border border-gray-300 rounded-md bg-gray-50 text-sm">
-          {" "}
           {/* 스타일 조정 */}
           {companyData.address || (
             <span className="text-gray-400">주소를 검색해주세요.</span>
@@ -391,13 +429,11 @@ export default function CreateStandardEstimate() {
         </div>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {" "}
         {/* 폼 요소 간 간격 추가 */}
         {/* --- 회사 정보 입력 --- */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">🏢 업체 정보</legend>
           <div className="space-y-3 mt-2">
-            {" "}
             {/* 내부 요소 간 간격 */}
             <input
               type="text"
@@ -459,7 +495,6 @@ export default function CreateStandardEstimate() {
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">🏛️ 홀 정보</legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-            {" "}
             {/* 그리드 레이아웃 적용 */}
             <div>
               <label
@@ -742,7 +777,6 @@ export default function CreateStandardEstimate() {
               />
             </div>
             <div className="md:col-span-2">
-              {" "}
               {/* 계약금 조항은 넓게 */}
               <label className="block mb-1 text-sm font-medium">
                 계약금/위약금 조항
@@ -1062,8 +1096,7 @@ export default function CreateStandardEstimate() {
                     );
                   }}
                 >
-                  {" "}
-                  삭제{" "}
+                  삭제
                 </button>
               </div>
             ))}
@@ -1192,8 +1225,7 @@ export default function CreateStandardEstimate() {
                     );
                   }}
                 >
-                  {" "}
-                  삭제{" "}
+                  삭제
                 </button>
               </div>
             ))}
@@ -1247,7 +1279,6 @@ export default function CreateStandardEstimate() {
 
           {/* 대표 사진 */}
           <div className="mb-6">
-            {" "}
             {/* 하단 마진 추가 */}
             <label className="block mb-1 font-medium text-gray-700">
               대표 사진 (1장)
@@ -1260,7 +1291,6 @@ export default function CreateStandardEstimate() {
             />
             {mainPhotoPreview && (
               <div className="relative w-32 h-32 mt-2">
-                {" "}
                 {/* 상단 마진 추가 */}
                 <img
                   src={mainPhotoPreview}
@@ -1269,7 +1299,7 @@ export default function CreateStandardEstimate() {
                 />
                 <button
                   type="button"
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center p-0 leading-none cursor-pointer" // 크기 조정
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center p-0 leading-none cursor-pointer z-5" // 크기 조정
                   onClick={() => {
                     setMainPhoto(null);
                     if (mainPhotoPreview) URL.revokeObjectURL(mainPhotoPreview);
@@ -1277,8 +1307,7 @@ export default function CreateStandardEstimate() {
                   }}
                   aria-label="대표 사진 삭제"
                 >
-                  {" "}
-                  ×{" "}
+                  ×
                 </button>
               </div>
             )}
@@ -1287,7 +1316,7 @@ export default function CreateStandardEstimate() {
           {/* 추가 사진 (Dnd Kit 적용) */}
           <div>
             <label className="block mb-1 font-medium text-gray-700">
-              추가 사진 (최대 9장) -{" "}
+              추가 사진 (최대 9장) -
               <span className="text-blue-600 font-normal">
                 순서를 드래그하여 변경하세요.
               </span>
@@ -1298,7 +1327,9 @@ export default function CreateStandardEstimate() {
               multiple
               onChange={handleSubPhotoUpload}
               disabled={subPhotoItems.length >= 9}
-              className={`mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer ${subPhotoItems.length >= 9 ? "opacity-50 cursor-not-allowed" : ""}`} // Tailwind 스타일 개선
+              className={`mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer ${
+                subPhotoItems.length >= 9 ? "opacity-50 cursor-not-allowed" : ""
+              }`} // Tailwind 스타일 개선
             />
             {/* Dnd Kit 영역 */}
             {subPhotoItems.length > 0 && ( // 사진이 있을 때만 Dnd 영역 렌더링
@@ -1313,10 +1344,7 @@ export default function CreateStandardEstimate() {
                 >
                   {/* 그리드 컨테이너 */}
                   <div className="flex items-center justify-center flex-wrap gap-3 p-2 rounded border border-gray-200 bg-gray-50 min-h-[8rem]">
-                    {" "}
-                    {/* 최소 높이 및 스타일 추가 */}
                     {subPhotoItems.map((photo) => (
-                      // 정렬 가능한 개별 사진 아이템
                       <SortablePhotoItem
                         key={photo.id}
                         photo={photo}
@@ -1336,7 +1364,6 @@ export default function CreateStandardEstimate() {
         </fieldset>
         {/* --- 피드백 및 제출 버튼 --- */}
         <div className="mt-6">
-          {" "}
           {/* 상단 마진 추가 */}
           {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
           {successMessage && (
