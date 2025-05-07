@@ -7,7 +7,6 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import { CompanyFormData } from "@/interface"; // 경로는 실제 프로젝트 구조에 맞게 확인하세요
 import NaverPlaceSearch from "@/components/NaverAddressSearch"; // 경로는 실제 프로젝트 구조에 맞게 확인하세요
 import { uploadImage } from "@/utils/uploadImage"; // 경로는 실제 프로젝트 구조에 맞게 확인하세요
 
@@ -59,37 +58,6 @@ function SortablePhotoItem({
     isDragging, // 현재 이 항목이 드래그 중인지 여부를 나타내는 boolean 값
   } = useSortable({
     id: photo.id, // photo 객체의 고유 id를 useSortable에 전달
-
-    // ✅ shouldCancelStart 함수를 사용하여 드래그 시작을 취소할지 결정합니다.
-    // 드래그 시작 이벤트 (activatorEvent)가 발생한 원래 요소 (target)를 확인하여 처리합니다.
-    // shouldCancelStart: (event: DragEvent) => {
-    //   // 이벤트가 발생한 원래 DOM 요소를 가져옵니다. (드래그/클릭이 시작된 정확한 요소)
-    //   const originalTarget = event.activatorEvent.target as HTMLElement;
-
-    //   // 원래 이벤트 타겟부터 드래그 가능한 요소 (event.activatorEvent.currentTarget)까지
-    //   // 부모 노드를 거슬러 올라가며 확인합니다.
-    //   let currentElement: HTMLElement | null = originalTarget;
-    //   while (
-    //     currentElement &&
-    //     currentElement !== event.activatorEvent.currentTarget
-    //   ) {
-    //     // 만약 현재 요소가 BUTTON 태그이거나
-    //     // data-dnd-kit-disabled-dnd="true" 속성을 가지고 있다면
-    //     if (
-    //       currentElement.tagName === "BUTTON" || // 버튼 태그인지 확인
-    //       currentElement.dataset.dndKitDisabledDnd === "true" // 속성 확인
-    //     ) {
-    //       console.log(
-    //         "Drag cancelled: Original click/touch was on delete button or disabled element."
-    //       );
-    //       return true; // 드래그 시작을 취소합니다.
-    //     }
-    //     // 다음 부모 요소로 이동합니다.
-    //     currentElement = currentElement.parentElement;
-    //   }
-
-    //   return false;
-    // },
   }); // dnd-kit이 계산한 transform과 transition 스타일을 항목에 적용합니다.
 
   const style: React.CSSProperties = {

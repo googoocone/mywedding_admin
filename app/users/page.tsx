@@ -8,11 +8,13 @@ export default function WeddingHall() {
       method: "GET",
       credentials: "include",
     });
+
+    return res;
   };
 
   useEffect(() => {
     fetchAdmin();
   }, []);
 
-  return <div>유저 페이지</div>;
+  return <div></div>;
 }

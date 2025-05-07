@@ -1,26 +1,9 @@
 "use client";
 
-import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 // import { CompanyFormData } from "@/interface"; // 이 인터페이스가 필요한지 확인하고, 필요하다면 정의하거나 경로를 수정하세요.
-import NaverPlaceSearch from "@/components/NaverAddressSearch";
-// 관리자 수정 폼에서는 사진 업로드 유틸리티가 필요 없습니다.
-// import { uploadImage } from "@/utils/uploadImage";
 
-// 백엔드 응답 구조에 맞춰 정의한 인터페이스들을 임포트합니다.
-// 이 인터페이스들이 정의된 파일의 실제 경로를 사용하세요.
-import {
-  DetailedEstimate,
-  HallData,
-  MealPriceData,
-  EstimateOptionData,
-  EtcData,
-  WeddingPackageData,
-  WeddingPackageItemData,
-  WeddingCompanyData,
-  HallIncludeData,
-  HallPhotoData, // 사진 URL 미리보기 타입으로 사용
-  // ManagedPhoto는 이 시나리오에서 필요 없습니다.
-} from "@/interface/estimates"; // 예시 경로
+import { DetailedEstimate } from "@/interface/estimates"; // 예시 경로
 
 // 컴포넌트 속성(Props)에 대한 인터페이스
 interface CreateStandardEstimateProps {
@@ -90,8 +73,6 @@ export default function GetStandardEstimate({
     }[] // 수정 시 id 포함될 수 있음
   >([{ meal_type: "", category: "대인", price: 0, extra: "" }]); // 기본 항목 (initialData 없을 때)
 
-  // 웨딩 패키지 상태 (단일 객체로 가정, 백엔드는 배열) - 백엔드 구조에 맞춰 배열로 관리하는 것이 더 정확할 수 있습니다.
-  // 현재는 단일 객체로 가정하고 initialData의 첫 번째 패키지를 사용합니다.
   const [packageData, setPackageData] = useState({
     type: "스드메", // 기본값
     name: "",
@@ -174,7 +155,7 @@ export default function GetStandardEstimate({
         date: initialData.date || "", // ISO 날짜 문자열
         time: initialData.time || "",
         penalty_amount: initialData.penalty_amount || 0,
-        penalty_detail: initialData.penalty_details || "",
+        penalty_detail: initialData.penalty_detail || "",
       });
 
       // 식대 항목 목록 초기화 (Array of MealPriceData)

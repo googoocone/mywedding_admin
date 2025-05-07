@@ -159,7 +159,7 @@ export default function UpdateAdminEstimate({
         date: initialData.date || "", // ISO 날짜 문자열
         time: initialData.time || "",
         penalty_amount: initialData.penalty_amount || 0,
-        penalty_detail: initialData.penalty_details || "",
+        penalty_detail: initialData.penalty_detail || "",
       });
 
       // 식대 항목 목록 초기화 (Array of MealPriceData)

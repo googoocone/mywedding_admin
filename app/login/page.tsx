@@ -1,6 +1,5 @@
 "use client";
 
-import form from "next/form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -34,7 +33,7 @@ export default function Login() {
       }
     } catch (err) {
       alert("로그인 실패");
-      console.error("로그인 실패");
+      console.error("로그인 실패", err);
     }
   };
 

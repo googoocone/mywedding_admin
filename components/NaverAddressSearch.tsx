@@ -7,8 +7,12 @@ interface NaverPlaceSearchProps {
     React.SetStateAction<{
       name: string;
       address: string;
+      phone: string;
+      homepage: string;
+      accessibility: string;
       mapx: string;
       mapy: string;
+      ceremony_times: string;
     }>
   >;
 }

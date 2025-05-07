@@ -3,6 +3,7 @@
 import NaverPlaceSearch from "@/components/NaverAddressSearch";
 import UpdateAdminEstimate from "@/components/wedding-hall/updateAdminEstimate/page";
 import { FormEvent, useState } from "react";
+import { DetailedEstimate } from "@/interface/estimates";
 // 백엔드에서 받아온 상세 견적 데이터에 대한 인터페이스를 정의해야 합니다.
 // 이전 답변에서 제시해 드린 DetailedEstimateSchema의 TypeScript 버전이라고 생각하시면 됩니다.
 // 예: import { DetailedEstimate } from "@/interfaces/estimates"; // 실제 경로 및 타입 이름 사용
@@ -99,23 +100,6 @@ interface WeddingPackageData {
 
 // 백엔드에서 받아온 상세 견적 데이터의 전체 구조에 대한 인터페이스
 // DetailedEstimateSchema의 TypeScript 버전
-interface DetailedEstimate {
-  hall_id: number;
-  hall_price?: number | null;
-  date?: string | null; // 날짜는 Date 객체로 변환할 수도 있습니다.
-  id: number;
-  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  created_by_user_id?: string | null; // UUID 같은 경우 string
-  hall: HallData; // Nested Hall Data
-  time: string | null;
-  penalty_amount: number | null;
-  penlaty_detail: string | null;
-  estimate_options: EstimateOptionData[]; // Array of Options
-  etcs: EtcData[]; // Array of Etc
-  wedding_packages: WeddingPackageData[]; // Array of Packages
-  meal_prices: MealPriceData[]; // Array of Meal Prices
-  // created_by_user?: UserData; // 필요시 추가
-}
 
 // createAdminEstimate 컴포넌트는 이제 검색 결과를 목록으로 보여주고,
 // 선택된 항목의 상세 데이터를 관리하며, 수정 폼을 렌더링할 수 있습니다.
@@ -125,8 +109,12 @@ export default function UpdateAdminEstimatePage() {
     // 회사 검색 결과 데이터
     name: "",
     address: "",
-    mapx: "", // 현재 JSON에는 lat/lng이 있지만, NaverPlaceSearch 결과는 mapx/mapy일 수 있습니다.
+    phone: "",
+    homepage: "",
+    accessibility: "",
+    mapx: "",
     mapy: "",
+    ceremony_times: "",
   });
 
   // 백엔드 검색 결과를 담을 상태 (간단 목록 또는 상세 목록)
@@ -255,9 +243,6 @@ export default function UpdateAdminEstimatePage() {
           // 수정 완료/취소 버튼 등을 통해 handleEditComplete 호출 로직 필요
         />
       )}
-
-      {/* 검색 결과가 없거나 로딩 중일 때 메시지 표시 (선택 사항) */}
-      {/* {!estimateList.length && !selectedEstimate && !isLoading && <p>검색 결과가 없습니다.</p>} */}
     </div>
   );
 }

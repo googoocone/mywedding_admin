@@ -110,17 +110,8 @@ export interface WeddingPackageData {
     wedding_package_items: WeddingPackageItemData[]; // Array of WeddingPackageItems
 }
 
-// models/users.py -> User 모델 정보 (DetailedEstimate 객체 안에 created_by_user로 포함될 수 있음)
-// 현재 백엔드 응답 JSON에는 created_by_user 객체 자체가 포함되어 있지 않고 id만 있습니다.
-// 만약 User 객체 전체가 필요하다면 백엔드 쿼리 및 Pydantic 스키마 수정이 필요하며,
-// 여기에 UserData 인터페이스를 정의해야 합니다.
-// export interface UserData { id: string; name: string | null; /* ... etc */ }
 
-
-// DetailedEstimate 모델 정보 (백엔드 응답의 각 항목에 해당)
-// 이게 프론트엔드에서 'Estimate' 또는 'DetailedEstimate' 타입으로 사용될 메인 인터페이스입니다.
 export interface DetailedEstimate {
-    penalty: any;
     id: number; // 견적서 ID
     hall_id: number; // 홀 ID
     hall_price: number | null; // 대관료
@@ -128,7 +119,7 @@ export interface DetailedEstimate {
     date: string | null; // 날짜 (ISO string 형식으로 넘어옴)
     time : string | null;
     penalty_amount : number | null;
-    penalty_details : string | null;
+    penalty_detail : string | null;
     created_by_user_id: string | null; // 작성자 ID (String UUID 등)
 
     // 관계된 정보들이 Nested 객체 또는 배열로 포함됩니다.
