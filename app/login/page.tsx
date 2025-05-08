@@ -22,7 +22,7 @@ export default function Login() {
 
     try {
       const res = await axios.post(
-        "http://localhost:8000/admin/signin",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/signin`,
         payload,
         { withCredentials: true }
       );

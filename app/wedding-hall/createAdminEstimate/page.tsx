@@ -2,7 +2,7 @@
 
 import NaverPlaceSearch from "@/components/NaverAddressSearch";
 import GetStandardEstimate from "@/components/wedding-hall/createAdminEstimate/GetStandardEstimateForm";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { DetailedEstimate } from "@/interface/estimates";
 
 // 백엔드에서 받아온 상세 견적 데이터에 대한 인터페이스를 정의해야 합니다.
@@ -39,46 +39,6 @@ interface HallIncludeData {
   subcategory?: string | null;
 }
 
-interface HallData {
-  wedding_company_id: number;
-  name: string;
-  guarantees?: number | null;
-  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  id: number;
-  interval_minutes?: number | null;
-  parking?: number | null;
-  mood?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  wedding_company: WeddingCompanyData; // Nested Company Data
-  hall_includes: HallIncludeData[]; // Array of Includes
-  hall_photos: HallPhotoData[]; // Array of Photos
-}
-
-interface MealPriceData {
-  hall_id?: number; // 이전에 hall_id도 있었지만 estimate_id가 FK
-  estimate_id: number;
-  meal_type?: string | null;
-  category?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  price?: number | null;
-  extra?: string | null;
-  id: number;
-}
-
-interface EstimateOptionData {
-  estimate_id: number;
-  name?: string | null;
-  is_required?: boolean | null;
-  description?: string | null;
-  id: number;
-  price?: number | null;
-  reference_url?: string | null;
-}
-
-interface EtcData {
-  estimate_id: number;
-  id: number;
-  content?: string | null;
-}
-
 interface WeddingPackageItemData {
   id: number;
   type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
@@ -87,16 +47,6 @@ interface WeddingPackageItemData {
   description?: string | null;
   url?: string | null;
   wedding_package_id: number;
-}
-
-interface WeddingPackageData {
-  id: number;
-  total_price?: number | null;
-  estimate_id: number;
-  name?: string | null;
-  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  is_total_price?: boolean | null;
-  wedding_package_items: WeddingPackageItemData[]; // Array of Package Items
 }
 
 // 백엔드에서 받아온 상세 견적 데이터의 전체 구조에 대한 인터페이스
