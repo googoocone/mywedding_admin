@@ -1,7 +1,6 @@
 // context/AuthContext.tsx
 "use client";
 import { createContext, useEffect, useState } from "react";
-import { useRouter } from "next/router";
 
 interface AuthContextType {
   user: any;
@@ -13,7 +12,6 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState(null);
-  const router = useRouter();
 
   const fetchUser = async () => {
     try {
@@ -28,7 +26,6 @@ export const AuthProvider = ({ children }: any) => {
       setUser(data.user);
     } catch {
       setUser(null);
-      router.push("/login");
     }
   };
 
