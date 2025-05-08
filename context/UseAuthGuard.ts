@@ -2,16 +2,22 @@ import { useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 
-export const useAuthGuard = () => {
-  const { user, fetchUser } = useContext(AuthContext)!;
+export const useAuthGuard = (redirectTo: string = "/login") => {
+  const context = useContext(AuthContext);
   const router = useRouter();
 
-  useEffect(() => {
-    // user 정보 없을 경우 로그인 페이지로
-    if (user === null) {
-      fetchUser().then(() => {
-        if (user === null) router.push("/login");
-      });
+  if (!context) {
+    if (process.env.NODE_ENV === "development") {
+      throw new Error("useAuthGuard must be used within an AuthProvider");
     }
-  }, [user]);
+    return; // 혹은 로딩 상태나 빈 객체를 반환하여 사용하는 쪽에서 처리
+  }
+
+  const { user, isLoading } = context;
+
+  useEffect(() => {
+    if (!isLoading && user === null) {
+      router.push(redirectTo);
+    }
+  }, [user, isLoading, router, redirectTo]);
 };

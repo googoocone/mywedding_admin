@@ -4,6 +4,7 @@ import NaverPlaceSearch from "@/components/NaverAddressSearch";
 import GetStandardEstimate from "@/components/wedding-hall/createAdminEstimate/GetStandardEstimateForm";
 import { useState } from "react";
 import { DetailedEstimate } from "@/interface/estimates";
+import { useAuthGuard } from "@/context/UseAuthGuard";
 
 // 백엔드에서 받아온 상세 견적 데이터에 대한 인터페이스를 정의해야 합니다.
 // 이전 답변에서 제시해 드린 DetailedEstimateSchema의 TypeScript 버전이라고 생각하시면 됩니다.
@@ -55,6 +56,7 @@ interface WeddingPackageItemData {
 // createAdminEstimate 컴포넌트는 이제 검색 결과를 목록으로 보여주고,
 // 선택된 항목의 상세 데이터를 관리하며, 수정 폼을 렌더링할 수 있습니다.
 export default function CreateAdminEstimatePage() {
+  useAuthGuard();
   // 컴포넌트 이름 변경 고려
   const [companySearchData, setCompanySearchData] = useState({
     name: "",
