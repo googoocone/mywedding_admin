@@ -1,25 +1,25 @@
-// import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// export function middleware(request: NextRequest) {
-//   const token = request.cookies.get('admin_token')?.value;
-//   console.log('token', token)
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('admin_token')?.value;
+  console.log('token', token)
 
-//   const isLoginPage = request.nextUrl.pathname === '/login';
+  const isLoginPage = request.nextUrl.pathname === '/login';
 
-//   if (!token && !isLoginPage) {
-//     return NextResponse.redirect(new URL('/login', request.url));
-//   }
+  if (!token && !isLoginPage) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 
-//   if (token && isLoginPage) {
-//     return NextResponse.redirect(new URL('/', request.url));
-//   }
+  if (token && isLoginPage) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
 
-//   return NextResponse.next();
-// }
+  return NextResponse.next();
+}
 
-// // 로그인 제외한 모든 경로를 보호
-// export const config = {
-//   matcher: [
-//     "/((?!_next/static|_next/image|favicon.ico).*)"
-//   ],
-// };
+// 로그인 제외한 모든 경로를 보호
+export const config = {
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico).*)"
+  ],
+};
