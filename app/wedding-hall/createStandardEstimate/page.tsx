@@ -348,7 +348,7 @@ export default function CreateStandardEstimate() {
 
       // API 호출
       const response = await fetch(
-        `http://localhost:8000/admin/create-standard-estimate`, // 실제 API 엔드포인트
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/create-standard-estimate`, // 실제 API 엔드포인트
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

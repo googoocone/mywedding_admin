@@ -12,6 +12,9 @@ interface LoginPayload {
 }
 
 export default function Login() {
+  const admin = useContext(AuthContext);
+  console.log("admin", admin);
+
   const [id, setId] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
@@ -74,6 +77,7 @@ export default function Login() {
             value={password} // value 추가 및 양방향 바인딩
             onChange={(e) => setPassword(e.target.value)}
           />
+
           <button
             type="submit"
             className="w-full h-12 pl-2 rounded-xl border-gray-300 border cursor-pointer hover:bg-black hover:text-white"

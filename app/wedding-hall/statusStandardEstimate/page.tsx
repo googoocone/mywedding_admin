@@ -21,16 +21,13 @@ export default function DeleteAdminEstimatePage() {
   >([]);
   // 검색어 상태
   const [searchQuery, setSearchQuery] = useState<string>("");
-  // 데이터 로딩 상태 (목록 로딩)
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  // 에러 메시지 상태
-  const [error, setError] = useState<string | null>(null);
-  // 삭제 중인 견적서 ID 상태 (삭제 버튼 비활성화 등에 사용)
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  // 수정 중인 견적서 ID 상태 (수정 버튼 비활성화 등에 사용) - 선택 사항
-  // const [editingId, setEditingId] = useState<number | null>(null);
 
-  // --- 데이터 불러오는 함수 ---
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [error, setError] = useState<string | null>(null);
+
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const fetchEstimates = async () => {
     setIsLoading(true); // 로딩 시작
     setError(null); // 이전 에러 초기화
@@ -38,7 +35,7 @@ export default function DeleteAdminEstimatePage() {
       // ✅ 모든 견적서 목록을 가져오는 백엔드 API 엔드포인트
       // '/admin/get_admin_estimate_all' 또는 '/admin/estimates' 등 실제 엔드포인트 사용
       const response = await fetch(
-        "http://localhost:8000/admin/get_standard_estimate_all" // 백엔드 GET 엔드포인트
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/get_standard_estimate_all` // 백엔드 GET 엔드포인트
       );
 
       if (!response.ok) {
