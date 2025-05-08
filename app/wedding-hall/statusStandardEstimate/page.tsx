@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { useRouter } from "next/navigation"; // Next.js 라우터 임포트
-
-// 백엔드 응답 구조에 맞춰 정의한 인터페이스들을 임포트합니다.
-// 이 인터페이스들이 정의된 파일의 실제 경로를 사용하세요.
+import { useAuthGuard } from "@/context/UseAuthGuard";
 import {
   DetailedEstimate, // 견적 상세 정보를 포함하는 타입 (홀, 업체 정보 포함)
   // 필요한 경우 MealPriceData, EstimateOptionData 등 하위 데이터 타입도 임포트
@@ -12,7 +10,7 @@ import {
 
 // 모든 견적서 (표준 견적서)를 나열, 검색, 수정, 삭제하는 페이지 컴포넌트
 export default function DeleteAdminEstimatePage() {
-  // 컴포넌트 이름은 필요에 따라 변경 가능
+  useAuthGuard();
   const router = useRouter(); // Next.js 라우터 인스턴스 생성
 
   // 전체 견적서 목록 상태 (원본 데이터 유지)

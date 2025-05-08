@@ -2,15 +2,13 @@
 
 import React, { useState, useEffect, ChangeEvent } from "react"; // ChangeEvent 임포트
 
-// 백엔드 응답 구조에 맞춰 정의한 인터페이스들을 임포트합니다.
-// 이 인터페이스들이 정의된 파일의 실제 경로를 사용하세요.
-import {
-  DetailedEstimate, // 견적 상세 정보를 포함하는 타입 (홀, 업체 정보 포함)
-  // 필요한 경우 MealPriceData, EstimateOptionData 등 하위 데이터 타입도 임포트
-} from "@/interface/estimates"; // 예시 경로
+import { DetailedEstimate } from "@/interface/estimates"; // 예시 경로
+
+import { useAuthGuard } from "@/context/UseAuthGuard";
 
 // 모든 관리자 견적서를 나열하고 삭제하는 페이지 컴포넌트
 export default function DeleteAdminEstimatePage() {
+  useAuthGuard();
   // 전체 견적서 목록 상태 (원본 데이터 유지)
   const [estimates, setEstimates] = useState<DetailedEstimate[]>([]);
   // ✅ 필터링된 견적서 목록 상태 (실제로 표에 표시될 목록)
@@ -107,8 +105,6 @@ export default function DeleteAdminEstimatePage() {
         );
       }
 
-      // 삭제 성공 시 목록에서 해당 견적 제거 (상태 업데이트)
-      // ✅ 전체 목록(estimates)과 필터링된 목록(filteredEstimates) 모두에서 제거
       setEstimates((prevEstimates) =>
         prevEstimates.filter((estimate) => estimate.id !== estimateId)
       );

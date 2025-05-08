@@ -29,6 +29,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import { useAuthGuard } from "@/context/UseAuthGuard";
+
 // --- 타입 정의 ---
 interface SubPhotoItem {
   id: string; // 각 사진 항목을 식별할 고유 ID
@@ -106,6 +108,8 @@ function SortablePhotoItem({
 
 // --- 메인 폼 컴포넌트 ---
 export default function CreateStandardEstimate() {
+  useAuthGuard();
+
   // --- 상태 변수들 ---
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);

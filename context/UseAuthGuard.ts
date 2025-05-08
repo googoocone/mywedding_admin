@@ -13,11 +13,11 @@ export const useAuthGuard = (redirectTo: string = "/login") => {
     return; // 혹은 로딩 상태나 빈 객체를 반환하여 사용하는 쪽에서 처리
   }
 
-  const { user, isLoading } = context;
+  const { admin, isLoading } = context;
 
   useEffect(() => {
-    if (!isLoading && user === null) {
+    if (!isLoading && admin === null) {
       router.push(redirectTo);
     }
-  }, [user, isLoading, router, redirectTo]);
+  }, [admin, isLoading, router, redirectTo]);
 };

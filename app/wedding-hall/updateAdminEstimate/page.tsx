@@ -4,12 +4,8 @@ import NaverPlaceSearch from "@/components/NaverAddressSearch";
 import UpdateAdminEstimate from "@/components/wedding-hall/updateAdminEstimate/page";
 import { FormEvent, useState } from "react";
 import { DetailedEstimate } from "@/interface/estimates";
-// 백엔드에서 받아온 상세 견적 데이터에 대한 인터페이스를 정의해야 합니다.
-// 이전 답변에서 제시해 드린 DetailedEstimateSchema의 TypeScript 버전이라고 생각하시면 됩니다.
-// 예: import { DetailedEstimate } from "@/interfaces/estimates"; // 실제 경로 및 타입 이름 사용
+import { useAuthGuard } from "@/context/UseAuthGuard";
 
-// 임시로 any 또는 백엔드 응답 구조에 맞는 인터페이스를 정의합니다.
-// 백엔드 응답 JSON 구조에 맞춰 인터페이스를 정의하는 것이 가장 좋습니다.
 interface WeddingCompanyData {
   name: string;
   address: string;
@@ -98,12 +94,8 @@ interface WeddingPackageData {
   wedding_package_items: WeddingPackageItemData[]; // Array of Package Items
 }
 
-// 백엔드에서 받아온 상세 견적 데이터의 전체 구조에 대한 인터페이스
-// DetailedEstimateSchema의 TypeScript 버전
-
-// createAdminEstimate 컴포넌트는 이제 검색 결과를 목록으로 보여주고,
-// 선택된 항목의 상세 데이터를 관리하며, 수정 폼을 렌더링할 수 있습니다.
 export default function UpdateAdminEstimatePage() {
+  useAuthGuard();
   // 컴포넌트 이름 변경 고려
   const [companySearchData, setCompanySearchData] = useState({
     // 회사 검색 결과 데이터
