@@ -6,55 +6,6 @@ import { useState } from "react";
 import { DetailedEstimate } from "@/interface/estimates";
 import { useAuthGuard } from "@/context/UseAuthGuard";
 
-// 백엔드에서 받아온 상세 견적 데이터에 대한 인터페이스를 정의해야 합니다.
-// 이전 답변에서 제시해 드린 DetailedEstimateSchema의 TypeScript 버전이라고 생각하시면 됩니다.
-// 예: import { DetailedEstimate } from "@/interfaces/estimates"; // 실제 경로 및 타입 이름 사용
-
-// 임시로 any 또는 백엔드 응답 구조에 맞는 인터페이스를 정의합니다.
-// 백엔드 응답 JSON 구조에 맞춰 인터페이스를 정의하는 것이 가장 좋습니다.
-interface WeddingCompanyData {
-  name: string;
-  address: string;
-  phone?: string | null;
-  homepage?: string | null;
-  accessibility?: string | null;
-  lat?: number | null; // JSON에서는 Integer였지만, Number로 타입 정의
-  lng?: number | null; // JSON에서는 Integer였지만, Number로 타입 정의
-  ceremony_times?: string | null; // JSON에서 string으로 넘어왔지만 원래 JSON 타입
-  id: number;
-}
-
-interface HallPhotoData {
-  url: string;
-  hall_id: number;
-  caption?: string | null;
-  order_num?: number | null;
-  id: number;
-  is_visible?: boolean;
-}
-
-interface HallIncludeData {
-  hall_id: number;
-  category?: string | null;
-  id: number;
-  subcategory?: string | null;
-}
-
-interface WeddingPackageItemData {
-  id: number;
-  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  company_name?: string | null;
-  price?: number | null;
-  description?: string | null;
-  url?: string | null;
-  wedding_package_id: number;
-}
-
-// 백엔드에서 받아온 상세 견적 데이터의 전체 구조에 대한 인터페이스
-// DetailedEstimateSchema의 TypeScript 버전
-
-// createAdminEstimate 컴포넌트는 이제 검색 결과를 목록으로 보여주고,
-// 선택된 항목의 상세 데이터를 관리하며, 수정 폼을 렌더링할 수 있습니다.
 export default function CreateAdminEstimatePage() {
   useAuthGuard();
   // 컴포넌트 이름 변경 고려

@@ -6,94 +6,6 @@ import { FormEvent, useState } from "react";
 import { DetailedEstimate } from "@/interface/estimates";
 import { useAuthGuard } from "@/context/UseAuthGuard";
 
-interface WeddingCompanyData {
-  name: string;
-  address: string;
-  phone?: string | null;
-  homepage?: string | null;
-  accessibility?: string | null;
-  lat?: number | null; // JSON에서는 Integer였지만, Number로 타입 정의
-  lng?: number | null; // JSON에서는 Integer였지만, Number로 타입 정의
-  ceremony_times?: string | null; // JSON에서 string으로 넘어왔지만 원래 JSON 타입
-  id: number;
-}
-
-interface HallPhotoData {
-  url: string;
-  hall_id: number;
-  caption?: string | null;
-  order_num?: number | null;
-  id: number;
-  is_visible?: boolean;
-}
-
-interface HallIncludeData {
-  hall_id: number;
-  category?: string | null;
-  id: number;
-  subcategory?: string | null;
-}
-
-interface HallData {
-  wedding_company_id: number;
-  name: string;
-  guarantees?: number | null;
-  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  id: number;
-  interval_minutes?: number | null;
-  parking?: number | null;
-  mood?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  wedding_company: WeddingCompanyData; // Nested Company Data
-  hall_includes: HallIncludeData[]; // Array of Includes
-  hall_photos: HallPhotoData[]; // Array of Photos
-}
-
-interface MealPriceData {
-  hall_id?: number; // 이전에 hall_id도 있었지만 estimate_id가 FK
-  estimate_id: number;
-  meal_type?: string | null;
-  category?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  price?: number | null;
-  extra?: string | null;
-  id: number;
-}
-
-interface EstimateOptionData {
-  estimate_id: number;
-  name?: string | null;
-  is_required?: boolean | null;
-  description?: string | null;
-  id: number;
-  price?: number | null;
-  reference_url?: string | null;
-}
-
-interface EtcData {
-  estimate_id: number;
-  id: number;
-  content?: string | null;
-}
-
-interface WeddingPackageItemData {
-  id: number;
-  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  company_name?: string | null;
-  price?: number | null;
-  description?: string | null;
-  url?: string | null;
-  wedding_package_id: number;
-}
-
-interface WeddingPackageData {
-  id: number;
-  total_price?: number | null;
-  estimate_id: number;
-  name?: string | null;
-  type?: string | null; // 실제 Enum 값에 맞춰 string 또는 특정 Union Type 사용
-  is_total_price?: boolean | null;
-  wedding_package_items: WeddingPackageItemData[]; // Array of Package Items
-}
-
 export default function UpdateAdminEstimatePage() {
   useAuthGuard();
   // 컴포넌트 이름 변경 고려
@@ -120,12 +32,6 @@ export default function UpdateAdminEstimatePage() {
   const [showEditForm, setShowEditForm] = useState(false);
 
   const handleSearchCompany = async () => {
-    // ... (기존 회사 검색 및 백엔드 호출 로직) ...
-    // 백엔드 응답이 DetailedEstimate[] 타입이라고 가정합니다.
-    // setEstimateData(estimateData.data); // 이전 코드
-    // setEstimateList(backendResponse.data); // DetailedEstimate[] 타입으로 설정
-    console.log("검색 결과 (DetailedEstimate[]):", estimateList); // 검색 결과 확인
-
     // 검색 후 선택 상태 초기화
     setSelectedEstimate(null);
     setShowEditForm(false);
@@ -201,7 +107,6 @@ export default function UpdateAdminEstimatePage() {
         )}
       </div>
 
-      {/* 검색 결과 목록 표시 */}
       {estimateList.length > 0 &&
         !selectedEstimate && ( // 목록이 있고 선택되지 않았을 때만 보여줌
           <div className="w-[600px] flex items-center justify-between flex-wrap gap-4">
@@ -213,9 +118,7 @@ export default function UpdateAdminEstimatePage() {
                 key={item.id}
                 className="w-[180px] h-[80px] bg-white text-blue-500 border border-blue-500 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:font-semibold"
               >
-                {/* 백엔드에서 받아온 상세 구조에 맞춰 hall.name 사용 */}
                 <p className="text-lg">{item.hall.name}</p>
-                {/* 다른 간단 정보 표시 가능 */}
                 <p className="text-sm text-gray-600">{item.date}</p>
                 <p className="text-sm textgray600">id : {item.id} 견적서</p>
               </div>
@@ -223,16 +126,10 @@ export default function UpdateAdminEstimatePage() {
           </div>
         )}
 
-      {/* 선택된 견적의 상세 정보 표시 또는 수정 폼 렌더링 */}
-      {/* selectedEstimate 상태에 데이터가 채워지면 CreateStandardEstimate 폼을 수정 모드로 사용 */}
       {showEditForm && selectedEstimate && (
-        // CreateStandardEstimate 컴포넌트를 재활용하거나 새로운 EditEstimateForm 컴포넌트를 만듭니다.
-        // 여기서는 CreateStandardEstimate 컴포넌트가 수정 모드로 작동한다고 가정하고 데이터를 prop으로 전달합니다.
-        // CreateStandardEstimate 컴포넌트 내부에서 이 데이터를 받아 상태를 초기화하는 로직이 필요합니다.
         <UpdateAdminEstimate
-          initialData={selectedEstimate} // 받아온 상세 데이터를 prop으로 전달
-          onFormSubmit={() => {}} // 수정 완료 후 목록 새로고침 등의 처리를 위한 prop (필요시)
-          // 수정 완료/취소 버튼 등을 통해 handleEditComplete 호출 로직 필요
+          initialData={selectedEstimate}
+          onFormSubmit={() => {}}
         />
       )}
     </div>
