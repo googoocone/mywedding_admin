@@ -15,6 +15,13 @@ interface CreateStandardEstimateProps {
   onCancel?: () => void;
 }
 
+const packageItemOptions = [
+  { value: "스튜디오", label: "스튜디오" },
+  { value: "드레스", label: "드레스" },
+  { value: "헤어메이크업", label: "헤어&메이크업" }, // value는 "헤어메이크업", label은 "헤어&메이크업"
+  { value: "부케", label: "부케" },
+];
+
 export default function GetStandardEstimate({
   initialData,
   onFormSubmit,
@@ -107,7 +114,8 @@ export default function GetStandardEstimate({
   // 기타 메모사항 상태 (단일 객체로 가정, 백엔드는 etcs 배열) - 백엔드 구조에 맞춰 배열로 관리하는 것이 더 정확할 수 있습니다.
   // 현재는 단일 객체로 가정하고 etcs 배열의 내용을 합쳐 사용합니다.
   const [etcData, setEtcData] = useState({
-    content: "", // 여러 etc 내용을 합친 문자열
+    content:
+      "주차 : \n식사 : \n시식 : \n프로모션 : \n홀이 위치한 층 : \n웨딩홀 내부 좌석 수 : ",
   });
 
   // --- useEffect 훅: initialData prop 변경 시 상태 초기화 ---
@@ -545,7 +553,7 @@ export default function GetStandardEstimate({
         </fieldset>
         {/* 웨딩홀 포함 사항 필드셋 */}
         <fieldset className="mb-4 p-4 border border-gray-200">
-          <legend className="text-xl font-semibold">웨딩홀 포함사항</legend>
+          <legend className="text-xl font-semibold">대관료 포함사항</legend>
           {/* hallIncludeList 맵핑 및 입력 필드, 삭제 버튼 */}
           {/* 삭제 버튼은 필요에 따라 관리자 수정에서도 활성화 */}
           {hallIncludeList.map((item, index) => (
@@ -790,7 +798,7 @@ export default function GetStandardEstimate({
         {/* 웨딩 패키지 필드셋 */}
         {/* WeddingPackageData 단일 객체 상태지만, 백엔드는 배열로 줍니다. 필요에 따라 폼 상태를 배열로 변경 고려 */}
         <fieldset className="mb-4 p-4 border border-gray-200">
-          <legend className="text-xl font-semibold">🎁 웨딩 패키지</legend>
+          <legend className="text-xl font-semibold">🎁 홀 패키지</legend>
           {/* packageData 필드들 */}
           <label className="block mb-1">패키지 종류</label>
           <select
@@ -898,9 +906,9 @@ export default function GetStandardEstimate({
                   className="w-full mb-2 p-2 border border-gray-300"
                 >
                   {/* 옵션들은 models/enums.py 의 PackageItemTypeEnum 에 맞춰야 함 */}
-                  {["스튜디오", "드레스", "메이크업"].map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
+                  {packageItemOptions.map((optionItem) => (
+                    <option key={optionItem.value} value={optionItem.value}>
+                      {optionItem.label}
                     </option>
                   ))}
                 </select>

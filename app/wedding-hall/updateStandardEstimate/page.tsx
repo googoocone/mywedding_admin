@@ -55,6 +55,13 @@ interface SubPhotoItemDnd {
   is_visible?: boolean | null;
 }
 
+const packageItemOptions = [
+  { value: "스튜디오", label: "스튜디오" },
+  { value: "드레스", label: "드레스" },
+  { value: "헤어메이크업", label: "헤어&메이크업" }, // value는 "헤어메이크업", label은 "헤어&메이크업"
+  { value: "부케", label: "부케" },
+];
+
 const generateDndId = () =>
   `dnd-photo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -661,7 +668,9 @@ export default function UpdateStandardEstimatePage() {
           );
           const subUrl = await uploadImage(
             item.file,
-            `halls/${companyData.name || "unknown"}/sub_${currentPayloadOrderNum}_${Date.now()}`
+            `halls/${
+              companyData.name || "unknown"
+            }/sub_${currentPayloadOrderNum}_${Date.now()}`
           );
           console.log("subUrl", subUrl);
           finalPhotosForPayload.push({
@@ -804,7 +813,11 @@ export default function UpdateStandardEstimatePage() {
         console.error("API Error (Update Standard Estimate):", result);
         throw new Error(
           result.detail ||
-            `HTTP ${response.status}: 표준 견적서 수정 실패. 서버 메시지: ${JSON.stringify(result.detail)}`
+            `HTTP ${
+              response.status
+            }: 표준 견적서 수정 실패. 서버 메시지: ${JSON.stringify(
+              result.detail
+            )}`
         );
       }
 
@@ -1091,7 +1104,7 @@ export default function UpdateStandardEstimatePage() {
         {/* --- 웨딩홀 포함 사항 --- */}
         <fieldset className="p-5 border border-gray-200 rounded-lg shadow-sm">
           <legend className="text-xl font-semibold text-gray-700 px-2">
-            ✨ 웨딩홀 포함사항
+            ✨ 대관료 포함사항
           </legend>
           <div className="space-y-4 mt-3">
             {hallIncludeList.map((item, index) => (
@@ -1341,7 +1354,7 @@ export default function UpdateStandardEstimatePage() {
         {/* --- 웨딩 패키지 --- */}
         <fieldset className="p-5 border border-gray-200 rounded-lg shadow-sm">
           <legend className="text-xl font-semibold text-gray-700 px-2">
-            🎁 웨딩 패키지
+            🎁 홀 패키지
           </legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-3">
             <div>
@@ -1470,9 +1483,9 @@ export default function UpdateStandardEstimatePage() {
                       className="w-full p-2 border-gray-300 rounded-md bg-white text-sm"
                     >
                       <option value="">선택</option>
-                      {["스튜디오", "드레스", "메이크업"].map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt}
+                      {packageItemOptions.map((optionItem) => (
+                        <option key={optionItem.value} value={optionItem.value}>
+                          {optionItem.label}
                         </option>
                       ))}
                     </select>
@@ -1750,7 +1763,9 @@ export default function UpdateStandardEstimatePage() {
               multiple
               onChange={handleSubPhotoItemsUpload}
               disabled={subPhotoItems.length >= 9}
-              className={`mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 ${subPhotoItems.length >= 9 ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 ${
+                subPhotoItems.length >= 9 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             />
             {subPhotoItems.length > 0 ? (
               <DndContext
@@ -1805,8 +1820,8 @@ export default function UpdateStandardEstimatePage() {
             {isSubmitting
               ? "수정 내용 저장 중..."
               : isLoading
-                ? "정보 로딩 중..."
-                : "표준 견적서 수정 완료"}
+              ? "정보 로딩 중..."
+              : "표준 견적서 수정 완료"}
           </button>
         </div>
       </form>

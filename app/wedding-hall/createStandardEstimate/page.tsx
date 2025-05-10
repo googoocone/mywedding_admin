@@ -38,6 +38,13 @@ interface SubPhotoItem {
   preview: string; // 미리보기용 Object URL
 }
 
+const packageItemOptions = [
+  { value: "스튜디오", label: "스튜디오" },
+  { value: "드레스", label: "드레스" },
+  { value: "헤어메이크업", label: "헤어&메이크업" }, // value는 "헤어메이크업", label은 "헤어&메이크업"
+  { value: "부케", label: "부케" },
+];
+
 // 고유 ID 생성 함수 (간단 버전)
 const generateId = () =>
   `photo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -178,7 +185,10 @@ export default function CreateStandardEstimate() {
       reference_url: "",
     },
   ]);
-  const [etcData, setEtcData] = useState({ content: "" });
+  const [etcData, setEtcData] = useState({
+    content:
+      "주차 : \n식사 : \n시식 : \n프로모션 : \n홀이 위치한 층 : \n웨딩홀 내부 좌석 수 : ",
+  });
 
   // --- 핸들러 함수들 ---
 
@@ -603,10 +613,10 @@ export default function CreateStandardEstimate() {
             </div>
           </div>
         </fieldset>
-        {/* --- 웨딩홀 포함 사항 --- */}
+        {/* --- 대관료 포함 사항 --- */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
-            ✨ 웨딩홀 포함사항
+            ✨ 대관료 포함사항
           </legend>
           <div className="space-y-4 mt-2">
             {hallIncludeList.map((item, index) => (
@@ -985,9 +995,10 @@ export default function CreateStandardEstimate() {
                       }}
                       className="w-full p-2 border border-gray-300 rounded-md bg-white"
                     >
-                      {["스튜디오", "드레스", "메이크업"].map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt}
+                      <option value="">선택</option>
+                      {packageItemOptions.map((optionItem) => (
+                        <option key={optionItem.value} value={optionItem.value}>
+                          {optionItem.label}
                         </option>
                       ))}
                     </select>
