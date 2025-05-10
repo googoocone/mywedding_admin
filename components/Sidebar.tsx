@@ -30,7 +30,7 @@ const baseMenuItems = [
         name: "관리자견적서 수정",
         href: "/wedding-hall/updateAdminEstimate",
       },
-      { name: "관리자견적서 삭제", href: "/wedding-hall/deleteAdminEstimate" },
+      { name: "관리자견적서 삭제 ", href: "/wedding-hall/deleteAdminEstimate" },
     ],
   },
 ];

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent } from "react"; // ChangeEvent 임포트
-
+import { useRouter } from "next/navigation";
 import { DetailedEstimate } from "@/interface/estimates"; // 예시 경로
 
 import { useAuthGuard } from "@/context/UseAuthGuard";
@@ -9,6 +9,7 @@ import { useAuthGuard } from "@/context/UseAuthGuard";
 // 모든 관리자 견적서를 나열하고 삭제하는 페이지 컴포넌트
 export default function DeleteAdminEstimatePage() {
   useAuthGuard();
+  const router = useRouter();
   // 전체 견적서 목록 상태 (원본 데이터 유지)
   const [estimates, setEstimates] = useState<DetailedEstimate[]>([]);
   // ✅ 필터링된 견적서 목록 상태 (실제로 표에 표시될 목록)

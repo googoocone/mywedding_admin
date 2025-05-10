@@ -888,7 +888,7 @@ export default function CreateStandardEstimate() {
         {/* --- 웨딩홀 패키지 --- */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
-            🎁 웨딩 패키지 (선택)
+            🎁 홀 패키지 (선택)
           </legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             <div>
