@@ -605,16 +605,18 @@ export default function UpdateAdminEstimate({
           {/* estimateData 필드들 (대관료, 종류, 날짜) */}
           <label className="block mb-1">대관료</label>
           <input
-            type="number"
-            value={estimateData.hall_price}
-            onChange={(e) =>
+            type="text"
+            value={estimateData.hall_price.toLocaleString("ko-KR")}
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, "");
+              const numeric = Number(value);
               setEstimateData({
                 ...estimateData,
-                hall_price: Number(e.target.value),
-              })
-            }
-            placeholder="예: 1000000"
-            className="w-full mb-2 p-2 border border-gray-300"
+                hall_price: isNaN(numeric) ? 0 : numeric,
+              });
+            }}
+            placeholder="숫자만 입력 (예: 1000000)"
+            className="w-full p-2 border border-gray-300 rounded-md"
           />
 
           <label className="block mb-1">견적서 종류</label>
@@ -737,15 +739,17 @@ export default function UpdateAdminEstimate({
               {/* 가격 */}
               <label className="block mb-1">가격</label>
               <input
-                type="number"
-                value={meal.price}
+                type="text"
+                value={meal.price.toLocaleString("ko-KR")}
                 onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   const updated = [...mealTypes];
-                  updated[index].price = Number(e.target.value);
+                  updated[index].price = isNaN(numeric) ? 0 : numeric;
                   setMealTypes(updated);
                 }}
-                placeholder="예: 50000"
-                className="w-full mb-2 p-2 border border-gray-300"
+                placeholder="숫자만 입력"
+                className="w-full p-2 border border-gray-300 rounded-md"
               />
               {/* 비고 */}
               <label className="block mb-1">비고</label>
@@ -830,16 +834,18 @@ export default function UpdateAdminEstimate({
             <>
               <label className="block mb-1">총 가격</label>
               <input
-                type="number"
-                value={packageData.total_price}
-                onChange={(e) =>
+                type="text"
+                value={packageData.total_price.toLocaleString("ko-KR")}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
                   setPackageData({
                     ...packageData,
-                    total_price: Number(e.target.value),
-                  })
-                }
-                placeholder="예: 2000000"
-                className="w-full mb-2 p-2 border border-gray-300"
+                    total_price: isNaN(numeric) ? 0 : numeric,
+                  });
+                }}
+                placeholder="숫자만 입력"
+                className="w-full p-2 border border-gray-300 rounded-md"
               />
             </>
           )}
