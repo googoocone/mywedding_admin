@@ -31,7 +31,7 @@ export default function DeleteAdminEstimatePage() {
     setError(null); // 이전 에러 초기화
     try {
       const response = await fetch(
-        "http://localhost:8000/admin/get_admin_estimate_all" // 실제 백엔드 API 엔드포인트
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/get_admin_estimate_all` // 실제 백엔드 API 엔드포인트
       );
 
       if (!response.ok) {
