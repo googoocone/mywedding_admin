@@ -186,7 +186,8 @@ export default function CreateStandardEstimate() {
     },
   ]);
   const [etcData, setEtcData] = useState({
-    content: "-홀 상세: \n-주차 : \n-식사 : \n-시식 : \n-프로모션 : \n  ",
+    content:
+      "-홀 상세: 몇 층, 홀 내부 좌석 수, 분리예식 or 동시예식, 천고 높이, 버진로드 길이 \n-주차 : \n-식사 : \n-시식 : \n-프로모션 : \n  ",
   });
 
   // --- 핸들러 함수들 ---
