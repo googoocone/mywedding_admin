@@ -939,7 +939,7 @@ export default function CreateStandardEstimate() {
         </fieldset>
 
         {/* 웨딩홀 패키지 필드셋 */}
-        <fieldset className="p-4 border border-gray-200 rounded-md">
+        {/* <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             🎁 홀 패키지 (선택)
           </legend>
@@ -1028,10 +1028,10 @@ export default function CreateStandardEstimate() {
               </div>
             )}
           </div>
-        </fieldset>
+        </fieldset> */}
 
         {/* 패키지 개별 항목 필드셋 */}
-        <fieldset className="p-4 border border-gray-200 rounded-md">
+        {/* <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             📦 개별 패키지 항목 (선택)
           </legend>
@@ -1171,7 +1171,7 @@ export default function CreateStandardEstimate() {
               + 개별 항목 추가
             </button>
           </div>
-        </fieldset>
+        </fieldset> */}
 
         {/* 견적서 옵션 필드셋 */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
@@ -1456,6 +1456,13 @@ export default function CreateStandardEstimate() {
               "웨딩 업체 등록하기"
             )}
           </button>
+          {successMessage ? (
+            <div className="w-full mt-5 text-lg text-green-500 text-center">
+              {successMessage}
+            </div>
+          ) : (
+            ""
+          )}
         </div>
       </form>
     </div>
