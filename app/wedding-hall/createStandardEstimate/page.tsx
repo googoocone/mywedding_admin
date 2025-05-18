@@ -613,79 +613,6 @@ export default function CreateStandardEstimate() {
             </div>
           </div>
         </fieldset>
-        {/* --- 대관료 포함 사항 --- */}
-        <fieldset className="p-4 border border-gray-200 rounded-md">
-          <legend className="text-lg font-semibold px-2">
-            ✨ 대관료 포함사항
-          </legend>
-          <div className="space-y-4 mt-2">
-            {hallIncludeList.map((item, index) => (
-              <div
-                key={index}
-                className="border p-3 rounded relative bg-gray-50"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      대분류
-                    </label>
-                    <input
-                      type="text"
-                      value={item.category}
-                      onChange={(e) => {
-                        const updated = [...hallIncludeList];
-                        updated[index].category = e.target.value;
-                        setHallIncludeList(updated);
-                      }}
-                      placeholder="예: 기본 연출"
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
-                  <div>
-                    <label className="block mb-1 text-sm font-medium">
-                      소분류 (상세 내용)
-                    </label>
-                    <textarea
-                      value={item.subcategory}
-                      onChange={(e) => {
-                        const updated = [...hallIncludeList];
-                        updated[index].subcategory = e.target.value;
-                        setHallIncludeList(updated);
-                      }}
-                      placeholder="예: 혼구용품, 웨딩캔들, 포토테이블"
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      rows={2}
-                    />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const updated = hallIncludeList.filter(
-                      (_, i) => i !== index
-                    );
-                    setHallIncludeList(updated);
-                  }}
-                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold"
-                >
-                  삭제
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={() =>
-                setHallIncludeList([
-                  ...hallIncludeList,
-                  { category: "", subcategory: "" },
-                ])
-              }
-              className="w-full mt-2 bg-green-500 hover:bg-green-600 text-white p-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
-            >
-              + 포함사항 추가
-            </button>
-          </div>
-        </fieldset>
         {/* --- 견적 정보 --- */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">💰 견적 정보</legend>
@@ -778,6 +705,80 @@ export default function CreateStandardEstimate() {
             </div>
           </div>
         </fieldset>
+        {/* --- 대관료 포함 사항 --- */}
+        <fieldset className="p-4 border border-gray-200 rounded-md">
+          <legend className="text-lg font-semibold px-2">
+            ✨ 대관료 포함사항
+          </legend>
+          <div className="space-y-4 mt-2">
+            {hallIncludeList.map((item, index) => (
+              <div
+                key={index}
+                className="border p-3 rounded relative bg-gray-50"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      대분류
+                    </label>
+                    <input
+                      type="text"
+                      value={item.category}
+                      onChange={(e) => {
+                        const updated = [...hallIncludeList];
+                        updated[index].category = e.target.value;
+                        setHallIncludeList(updated);
+                      }}
+                      placeholder="예: 기본 연출"
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1 text-sm font-medium">
+                      소분류 (상세 내용)
+                    </label>
+                    <textarea
+                      value={item.subcategory}
+                      onChange={(e) => {
+                        const updated = [...hallIncludeList];
+                        updated[index].subcategory = e.target.value;
+                        setHallIncludeList(updated);
+                      }}
+                      placeholder="예: 혼구용품, 웨딩캔들, 포토테이블"
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                      rows={2}
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = hallIncludeList.filter(
+                      (_, i) => i !== index
+                    );
+                    setHallIncludeList(updated);
+                  }}
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold"
+                >
+                  삭제
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                setHallIncludeList([
+                  ...hallIncludeList,
+                  { category: "", subcategory: "" },
+                ])
+              }
+              className="w-full mt-2 bg-green-500 hover:bg-green-600 text-white p-2 rounded-md text-sm font-medium transition duration-150 ease-in-out"
+            >
+              + 포함사항 추가
+            </button>
+          </div>
+        </fieldset>
+
         {/* --- 식대 정보 --- */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">🍽 식대 정보</legend>
@@ -886,7 +887,7 @@ export default function CreateStandardEstimate() {
           </div>
         </fieldset>
         {/* --- 웨딩홀 패키지 --- */}
-        <fieldset className="p-4 border border-gray-200 rounded-md">
+        {/* <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             🎁 홀 패키지 (선택)
           </legend>
@@ -969,9 +970,9 @@ export default function CreateStandardEstimate() {
               </div>
             )}
           </div>
-        </fieldset>
+        </fieldset> */}
         {/* --- 패키지 개별 항목 --- */}
-        <fieldset className="p-4 border border-gray-200 rounded-md">
+        {/* <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             📦 개별 패키지 항목 (선택)
           </legend>
@@ -1102,7 +1103,7 @@ export default function CreateStandardEstimate() {
               + 개별 항목 추가
             </button>
           </div>
-        </fieldset>
+        </fieldset> */}
         {/* --- 견적서 옵션 --- */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
