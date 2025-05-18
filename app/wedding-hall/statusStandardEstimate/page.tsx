@@ -99,7 +99,7 @@ export default function DeleteAdminEstimatePage() {
     try {
       // ✅ 특정 견적서 삭제 백엔드 API 엔드포인트 (DELETE)
       const response = await fetch(
-        `http://localhost:8000/admin/standard_estimates/${estimateId}`, // DELETE 엔드포인트 사용
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/standard_estimates/${estimateId}`, // DELETE 엔드포인트 사용
         {
           method: "DELETE",
         }

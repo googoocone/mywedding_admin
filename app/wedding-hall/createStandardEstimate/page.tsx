@@ -659,6 +659,7 @@ export default function CreateStandardEstimate() {
               </label>
               <input
                 type="time"
+                step={600}
                 value={estimateData.time}
                 onChange={(e) =>
                   setEstimateData({ ...estimateData, time: e.target.value })
