@@ -7,8 +7,8 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import NaverPlaceSearch from "@/components/NaverAddressSearch"; // 경로는 실제 프로젝트 구조에 맞게 확인하세요
-import { uploadImage } from "@/utils/uploadImage"; // 경로는 실제 프로젝트 구조에 맞게 확인하세요
+import NaverPlaceSearch from "@/components/NaverAddressSearch";
+import { uploadImage } from "@/utils/uploadImage";
 
 // Dnd Kit 라이브러리 import
 import {
@@ -18,7 +18,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent, // DragEndEvent 타입 import
+  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -41,93 +41,93 @@ interface SubPhotoItem {
 const packageItemOptions = [
   { value: "스튜디오", label: "스튜디오" },
   { value: "드레스", label: "드레스" },
-  { value: "헤어메이크업", label: "헤어&메이크업" }, // value는 "헤어메이크업", label은 "헤어&메이크업"
+  { value: "헤어메이크업", label: "헤어&메이크업" },
   { value: "부케", label: "부케" },
 ];
 
-// 고유 ID 생성 함수 (간단 버전)
+// 웨딩홀 타입 옵션
+const weddingHallTypeOptions = [
+  "호텔",
+  "가든",
+  "스몰",
+  "컨벤션",
+  "채플",
+  "하우스",
+  "야외",
+];
+
 const generateId = () =>
   `photo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-// --- 개별 사진 아이템 컴포넌트 (Draggable + Sortable) ---
 function SortablePhotoItem({
-  photo, // 표시할 사진 데이터 (id, preview 등 포함)
-  onRemove, // 삭제 버튼 클릭 시 호출될 함수
+  photo,
+  onRemove,
 }: {
-  photo: any; // photo prop의 타입 (정확한 SubPhotoItem 타입 사용 권장)
-  onRemove: (id: any) => void; // onRemove 함수의 타입 (id 타입도 정확히 명시 권장)
+  photo: SubPhotoItem; // 타입 명시
+  onRemove: (id: string) => void; // 타입 명시
 }) {
-  // useSortable 훅을 사용하여 정렬 가능한 항목으로 만듭니다.
   const {
-    attributes, // 드래그 가능한 요소에 필요한 HTML 속성
-    listeners, // 드래그 이벤트를 감지하는 이벤트 리스너 (이 요소에 연결)
-    setNodeRef, // 드래그 가능한 DOM 노드를 dnd-kit에 연결하는 ref
-    transform, // 드래그 시 항목의 위치 변화 (transform 스타일 객체)
-    transition, // 드래그 후 원래 위치로 돌아올 때 부드러운 전환 효과 (transition 스타일 문자열)
-    isDragging, // 현재 이 항목이 드래그 중인지 여부를 나타내는 boolean 값
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
   } = useSortable({
-    id: photo.id, // photo 객체의 고유 id를 useSortable에 전달
-  }); // dnd-kit이 계산한 transform과 transition 스타일을 항목에 적용합니다.
+    id: photo.id,
+  });
 
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform), // transform 객체를 CSS transform 문자열로 변환
-    transition, // transition 스타일 적용
-    opacity: isDragging ? 0.7 : 1, // 드래그 중일 때 투명도 조절
-    zIndex: isDragging ? 10 : "auto", // 드래그 중인 항목이 다른 항목들 위로 올라오도록 z-index 설정
-    touchAction: "none", // 터치 장치에서 기본 스크롤/확대 동작을 방지하여 드래그를 원활하게 합니다. (dnd-kit 권장)
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.7 : 1,
+    zIndex: isDragging ? 10 : "auto",
+    touchAction: "none",
   };
 
   return (
-    // 이 div 요소가 dnd-kit에 의해 드래그 가능한 항목으로 관리됩니다.
-    // ref, style, attributes, listeners를 이 요소에 연결합니다.
-    <div className="relative">
+    <div className="relative group">
       <div
-        ref={setNodeRef} // dnd-kit과 DOM 노드 연결
-        style={style} // dnd-kit 스타일 적용
-        {...attributes} // 접근성 및 드래그 속성
-        {...listeners} // 드래그 이벤트 리스너
-        className="relative w-28 h-28 border border-gray-200 rounded overflow-hidden" // 항목의 기본 크기, 테두리, 모양 스타일
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className="relative w-28 h-28 border border-gray-200 rounded overflow-hidden cursor-grab bg-gray-100 flex items-center justify-center"
       >
-        {/* 사진 이미지 */}
         <img
-          src={photo.preview} // 사진 이미지 소스 URL (photo 객체의 preview 속성 사용)
-          alt={`추가 사진`} // 이미지 설명 (접근성 및 이미지가 로드되지 않았을 때 표시)
-          className="w-full h-full object-cover" // 이미지가 부모 div를 꽉 채우면서 비율을 유지하도록 설정
+          src={photo.preview}
+          alt={`추가 사진 ${photo.id}`}
+          className="w-full h-full object-cover"
         />
       </div>
-      {/* 삭제 버튼 */}
       <button
-        type="button" // 버튼의 type을 명시합니다.
-        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-10 h-5 text-xs flex items-center justify-center z-55 cursor-pointer p-0 leading-none" // 버튼의 스타일
+        type="button"
+        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center z-10 opacity-0 group-hover:opacity-100 transition-opacity p-0 leading-none"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           onRemove(photo.id);
         }}
-        aria-label="사진 삭제" // 접근성 레이블 // 이 속성은 shouldCancelStart 함수에서 클릭된 요소인지 확인하는 데 사용됩니다.
+        aria-label="사진 삭제"
         data-dnd-kit-disabled-dnd="true"
       >
-        삭제
+        ×
       </button>
     </div>
   );
 }
 
-// --- 메인 폼 컴포넌트 ---
 export default function CreateStandardEstimate() {
   useAuthGuard();
 
-  // --- 상태 변수들 ---
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // 사진 상태 관리 (DnD 적용)
   const [mainPhoto, setMainPhoto] = useState<File | null>(null);
   const [mainPhotoPreview, setMainPhotoPreview] = useState<string | null>(null);
-  const [subPhotoItems, setSubPhotoItems] = useState<SubPhotoItem[]>([]); // File과 Preview URL, id를 함께 관리
+  const [subPhotoItems, setSubPhotoItems] = useState<SubPhotoItem[]>([]);
 
-  // 나머지 폼 데이터 상태 (기존 코드 유지)
   const [companyData, setCompanyData] = useState({
     name: "",
     address: "",
@@ -138,35 +138,42 @@ export default function CreateStandardEstimate() {
     mapy: "",
     ceremony_times: "",
   });
+
   const [hallData, setHallData] = useState({
     name: "",
     interval_minutes: 60,
     guarantees: 100,
     parking: 50,
-    type: "컨벤션",
+    type: [] as string[], // ✨ 홀 타입을 문자열 배열로 변경, 초기값 빈 배열
     mood: "밝은",
   });
+
   const [hallIncludeList, setHallIncludeList] = useState<
     { category: string; subcategory: string }[]
   >([]);
+
   const [estimateData, setEstimateData] = useState({
     hall_price: 0,
-    meal_type: "",
-    type: "standard",
+    // meal_type: "", // 이 필드는 mealTypes 배열로 관리되므로 여기서는 불필요할 수 있습니다.
+    // 백엔드 스키마에 따라 포함 여부 결정
+    type: "standard", // 견적서 타입은 'standard'로 고정
     date: "",
     time: "",
     penalty_amount: 0,
     penalty_detail: "",
   });
+
   const [mealTypes, setMealTypes] = useState<
     { meal_type: string; category: string; price: number; extra: string }[]
   >([{ meal_type: "", category: "대인", price: 0, extra: "" }]);
+
   const [packageData, setPackageData] = useState({
-    type: "스드메",
+    type: "스드메", // 기본값
     name: "",
     total_price: 0,
-    is_total_price: true,
+    is_total_price: true, // 기본값
   });
+
   const [packageItems, setPackageItems] = useState<
     {
       type: string;
@@ -176,6 +183,7 @@ export default function CreateStandardEstimate() {
       url: string;
     }[]
   >([]);
+
   const [estimateOptions, setEstimateOptions] = useState([
     {
       name: "",
@@ -185,79 +193,64 @@ export default function CreateStandardEstimate() {
       reference_url: "",
     },
   ]);
+
   const [etcData, setEtcData] = useState({
     content:
       "-홀 상세: 몇 층, 홀 내부 좌석 수, 분리예식 or 동시예식, 천고 높이, 버진로드 길이 \n-주차 : \n-식사 : \n-시식 : \n-프로모션 : \n  ",
   });
 
-  // --- 핸들러 함수들 ---
-
-  // 일반적인 입력 변경 핸들러
   const handleCompanyChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    // Select 타입 추가
     const { name, value } = e.target;
     setCompanyData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 대표 사진 업로드 핸들러 (메모리 누수 방지 추가)
   const handleMainPhotoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    // 이전 미리보기 URL 해제
     if (mainPhotoPreview) {
       URL.revokeObjectURL(mainPhotoPreview);
     }
-
     if (file) {
       setMainPhoto(file);
-      setMainPhotoPreview(URL.createObjectURL(file)); // 새 미리보기 생성
+      setMainPhotoPreview(URL.createObjectURL(file));
     } else {
       setMainPhoto(null);
-      setMainPhotoPreview(null); // 파일 선택 취소 시 초기화
+      setMainPhotoPreview(null);
     }
-    e.target.value = ""; // input 값 초기화
+    e.target.value = "";
   };
 
-  // 추가 사진 업로드 핸들러 (DnD 적용)
   const handleSubPhotoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const currentCount = subPhotoItems.length;
-
-    if (files.length === 0) return; // 선택된 파일 없으면 종료
-
+    if (files.length === 0) return;
     if (files.length + currentCount > 9) {
       alert("추가 사진은 최대 9장까지 업로드 가능합니다.");
-      e.target.value = ""; // 입력 초기화
+      e.target.value = ""; // 파일 입력 초기화
       return;
     }
-
     const newPhotoItems: SubPhotoItem[] = files.map((file) => ({
-      id: generateId(), // 고유 ID 생성
+      id: generateId(),
       file: file,
-      preview: URL.createObjectURL(file), // 미리보기 URL 생성
+      preview: URL.createObjectURL(file),
     }));
-
-    setSubPhotoItems((prev) => [...prev, ...newPhotoItems]); // 상태 업데이트
-    e.target.value = ""; // 입력 초기화
+    setSubPhotoItems((prev) => [...prev, ...newPhotoItems]);
+    e.target.value = "";
   };
 
-  // 추가 사진 삭제 핸들러 (DnD 적용 - id 기반)
   const handleRemoveSubPhoto = useCallback((idToRemove: string) => {
     setSubPhotoItems((prev) => {
       const itemToRemove = prev.find((item) => item.id === idToRemove);
-      // Object URL 메모리 해제
       if (itemToRemove) {
         URL.revokeObjectURL(itemToRemove.preview);
       }
-      // 해당 id를 제외한 새 배열 반환
       return prev.filter((item) => item.id !== idToRemove);
     });
-  }, []); // 의존성 없음
+  }, []);
 
-  // Dnd Kit 센서 설정 (마우스, 터치, 키보드)
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -265,35 +258,37 @@ export default function CreateStandardEstimate() {
     })
   );
 
-  // 드래그 종료 시 호출될 핸들러 (DnD 적용)
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
-
-    // 드롭 위치가 유효하고, 시작 위치와 다른 경우에만 순서 변경
     if (over && active.id !== over.id) {
       setSubPhotoItems((items) => {
-        // 현재 아이템들의 id 배열에서 인덱스 찾기
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
-
-        // arrayMove 유틸리티로 순서 변경된 새 배열 반환
         return arrayMove(items, oldIndex, newIndex);
       });
     }
-  }, []); // 의존성 없음
+  }, []);
 
-  // 컴포넌트 언마운트 시 Object URL 메모리 해제 (메모리 누수 방지)
   useEffect(() => {
     return () => {
-      console.log("Cleaning up Object URLs...");
       if (mainPhotoPreview) {
         URL.revokeObjectURL(mainPhotoPreview);
       }
       subPhotoItems.forEach((item) => URL.revokeObjectURL(item.preview));
     };
-  }, [mainPhotoPreview, subPhotoItems]); // 이 상태들이 변경될 때마다 effect 재등록
+  }, [mainPhotoPreview, subPhotoItems]);
 
-  // 폼 제출 핸들러 (DnD 적용된 사진 순서 반영)
+  // ✨ 웨딩홀 타입 변경 핸들러
+  const handleHallTypeChange = (selectedType: string) => {
+    setHallData((prevHallData) => {
+      const currentTypes = prevHallData.type;
+      const newTypes = currentTypes.includes(selectedType)
+        ? currentTypes.filter((type) => type !== selectedType)
+        : [...currentTypes, selectedType];
+      return { ...prevHallData, type: newTypes };
+    });
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -303,69 +298,109 @@ export default function CreateStandardEstimate() {
     if (!companyData.name) {
       setError("업체명을 입력해주세요.");
       setIsLoading(false);
+      window.scrollTo(0, 0); // 에러 메시지 확인을 위해 상단으로 스크롤
+      return;
+    }
+    if (!hallData.name) {
+      setError("홀 이름을 입력해주세요.");
+      setIsLoading(false);
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (hallData.type.length === 0) {
+      setError("웨딩홀 타입을 하나 이상 선택해주세요.");
+      setIsLoading(false);
+      window.scrollTo(0, 0);
+      return;
+    }
+    // date, time 필드에 대한 유효성 검사 (선택 사항)
+    if (!estimateData.date) {
+      setError("견적 날짜를 입력해주세요.");
+      setIsLoading(false);
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (!estimateData.time) {
+      setError("예식 시작 시간을 입력해주세요.");
+      setIsLoading(false);
+      window.scrollTo(0, 0);
       return;
     }
 
-    // 페이로드 생성 (기존 로직)
+    // 페이로드 생성
     const payload: any = {
-      ...companyData,
-      hall: hallData,
+      name: companyData.name, // companyData의 나머지 필드들도 필요하면 명시적으로 추가
+      address: companyData.address,
+      phone: companyData.phone,
+      homepage: companyData.homepage,
+      accessibility: companyData.accessibility,
+      mapx: companyData.mapx,
+      mapy: companyData.mapy,
+      ceremony_times: companyData.ceremony_times,
+
+      hall: hallData, // hallData.type은 string[] 형태
+
       hall_includes: hallIncludeList.filter(
         (item) => item.category || item.subcategory
-      ), // 내용 있는 것만 포함
+      ),
+
+      // estimateData에서 meal_type을 제외하거나 백엔드와 협의 필요
+      // 현재 estimateData 정의에 meal_type이 있으므로, 백엔드가 이를 어떻게 처리하는지 확인
       estimate: estimateData,
-      wedding_package: packageData,
-      package_items: packageItems.filter((item) => item.company_name), // 내용 있는 것만 포함
-      meal_price: mealTypes.filter((item) => item.meal_type), // 내용 있는 것만 포함
-      estimate_options: estimateOptions.filter((item) => item.name), // 내용 있는 것만 포함
-      etc: etcData.content.trim() !== "" ? etcData : undefined, // 내용 있을 때만 포함
+
+      // wedding_package는 내용이 있을 때만 보내도록 수정
+      wedding_package:
+        packageData.name || packageItems.some((item) => item.company_name)
+          ? packageData
+          : undefined,
+      package_items: packageItems.filter((item) => item.company_name),
+
+      meal_price: mealTypes.filter((item) => item.meal_type && item.price > 0), // 유효한 식대만
+      estimate_options: estimateOptions.filter((item) => item.name),
+      etc: etcData.content.trim() !== "" ? etcData : undefined,
+      hall_photos: [], // 아래에서 채워짐
     };
 
     try {
-      const hall_photos = [];
-
-      // 대표 사진 업로드
+      const uploaded_hall_photos = []; // 임시 배열 이름 변경
       if (mainPhoto) {
         const mainUrl = await uploadImage(
           mainPhoto,
           `halls/${companyData.name || "unknown"}/main_${Date.now()}`
-        ); // 고유 경로 생성 권장
-        hall_photos.push({
-          url: String(mainUrl), // URL을 문자열로 변환 가정
+        );
+        uploaded_hall_photos.push({
+          url: String(mainUrl),
           order_num: 1,
           caption: "대표 사진",
           is_visible: true,
         });
       }
 
-      // 추가 사진 업로드 (!!! 순서 변경된 subPhotoItems 사용 !!!)
       for (let i = 0; i < subPhotoItems.length; i++) {
-        const item = subPhotoItems[i]; // 순서 변경된 배열의 i번째 요소
+        const item = subPhotoItems[i];
         const url = await uploadImage(
           item.file,
           `halls/${companyData.name || "unknown"}/sub_${i + 1}_${Date.now()}`
-        ); // 고유 경로 생성 권장
-        hall_photos.push({
-          url: String(url), // URL을 문자열로 변환 가정
-          order_num: i + 2, // 최종 순서 반영 (i가 0부터 시작하므로 +2)
+        );
+        uploaded_hall_photos.push({
+          url: String(url),
+          order_num: i + 2, // 대표 사진이 1번이므로 추가 사진은 2번부터
           caption: `추가 사진 ${i + 1}`,
           is_visible: true,
         });
       }
+      payload.hall_photos = uploaded_hall_photos;
 
-      payload.hall_photos = hall_photos; // 최종 페이로드에 사진 정보 추가
-      console.log("Submitting payload:", JSON.stringify(payload, null, 2)); // 전송 데이터 확인
+      console.log("Submitting payload:", JSON.stringify(payload, null, 2));
 
-      // API 호출
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/create-standard-estimate`, // 실제 API 엔드포인트
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/create-standard-estimate`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         }
       );
-
       const result = await response.json();
 
       if (!response.ok) {
@@ -374,52 +409,64 @@ export default function CreateStandardEstimate() {
           result.detail || `HTTP error! status: ${response.status}`
         );
       }
-
       setSuccessMessage(`업체 등록 성공! 업체 ID: ${result.company_id}`);
-      // 성공 후 폼 초기화 또는 리디렉션 등 추가 작업
-      // 예: setCompanyData({...초기값}); setSubPhotoItems([]); ...
+      // TODO: 성공 후 폼 초기화 로직 추가
+      // setCompanyData({ name: "", address: "", ... });
+      // setHallData({ name: "", type: [], ... });
+      // setSubPhotoItems([]);
+      // setMainPhoto(null); setMainPhotoPreview(null);
+      // ... 등등
+      window.scrollTo(0, 0);
     } catch (err: any) {
       console.error("Registration failed:", err);
       setError(err.message || "등록 중 오류가 발생했습니다.");
+      window.scrollTo(0, 0);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- JSX 렌더링 ---
   return (
-    <div className="max-w-2xl mx-auto my-8 p-6 border border-gray-300 rounded-lg shadow-md">
-      {/* Tailwind 스타일 적용 */}
+    <div className="max-w-2xl mx-auto my-8 p-6 border border-gray-300 rounded-lg shadow-md bg-white">
       <h1 className="text-center text-2xl font-semibold mt-5 mb-10">
         웨딩 업체 표준견적서 등록
       </h1>
-      {/* 주소 검색 섹션 */}
       <div className="mb-4">
+        <NaverPlaceSearch setCompanyData={setCompanyData} />
         <label
-          htmlFor="address"
-          className="block mb-1 text-sm font-medium text-gray-700"
+          htmlFor="address_display"
+          className="block mb-1 text-sm font-medium text-gray-700 mt-2"
         >
-          {/* NaverPlaceSearch 컴포넌트는 setCompanyData 함수를 prop으로 받음 */}
-          <NaverPlaceSearch setCompanyData={setCompanyData} />
           주소 :
         </label>
-        <div className="w-full min-h-[2.5rem] p-2 border border-gray-300 rounded-md bg-gray-50 text-sm">
-          {/* 스타일 조정 */}
+        <div
+          id="address_display"
+          className="w-full min-h-[2.5rem] p-2 border border-gray-300 rounded-md bg-gray-50 text-sm"
+        >
           {companyData.address || (
             <span className="text-gray-400">주소를 검색해주세요.</span>
           )}
         </div>
       </div>
+
+      {/* 에러/성공 메시지 표시 위치 (폼 상단) */}
+      {error && (
+        <p className="text-red-600 text-sm mb-3 p-3 bg-red-50 rounded-md">
+          {error}
+        </p>
+      )}
+      {successMessage && (
+        <p className="text-green-600 text-sm mb-3 p-3 bg-green-50 rounded-md">
+          {successMessage}
+        </p>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 폼 요소 간 간격 추가 */}
-        {/* --- 회사 정보 입력 --- */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">🏢 업체 정보</legend>
           <div className="space-y-3 mt-2">
-            {/* 내부 요소 간 간격 */}
             <input
               type="text"
-              id="name"
               name="name"
               value={companyData.name}
               onChange={handleCompanyChange}
@@ -429,7 +476,6 @@ export default function CreateStandardEstimate() {
             />
             <input
               type="tel"
-              id="phone"
               name="phone"
               value={companyData.phone}
               onChange={handleCompanyChange}
@@ -438,7 +484,6 @@ export default function CreateStandardEstimate() {
             />
             <input
               type="url"
-              id="homepage"
               name="homepage"
               value={companyData.homepage}
               onChange={handleCompanyChange}
@@ -446,7 +491,6 @@ export default function CreateStandardEstimate() {
               placeholder="홈페이지 (http://...)"
             />
             <textarea
-              id="accessibility"
               name="accessibility"
               value={companyData.accessibility}
               onChange={handleCompanyChange}
@@ -459,12 +503,12 @@ export default function CreateStandardEstimate() {
                 htmlFor="ceremony_times"
                 className="block mb-1 text-sm font-medium text-gray-700"
               >
-                예식 시간
+                예식 시간 정보
               </label>
               <textarea
                 id="ceremony_times"
                 name="ceremony_times"
-                placeholder="예: 10:00 / 11:00 / 12:00 / 13:00 / 14:00"
+                placeholder="예: 11:00 / 12:30 / 14:00 (각 홀별 시간이 다를 경우 명시)"
                 className="w-full p-2 border border-gray-300 rounded-md"
                 value={companyData.ceremony_times}
                 onChange={handleCompanyChange}
@@ -473,26 +517,26 @@ export default function CreateStandardEstimate() {
             </div>
           </div>
         </fieldset>
-        {/* --- Hall 정보 --- */}
+
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">🏛️ 홀 정보</legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-            {/* 그리드 레이아웃 적용 */}
             <div>
               <label
-                htmlFor="hall_name"
+                htmlFor="hall_name_input"
                 className="block mb-1 text-sm font-medium text-gray-700"
               >
-                홀 이름
+                홀 이름 *
               </label>
               <input
                 type="text"
-                id="hall_name"
+                id="hall_name_input"
                 value={hallData.name}
                 onChange={(e) =>
                   setHallData({ ...hallData, name: e.target.value })
                 }
                 placeholder="홀 이름"
+                required
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -506,11 +550,12 @@ export default function CreateStandardEstimate() {
               <input
                 type="number"
                 id="interval_minutes"
+                min="0" // 음수 방지
                 value={hallData.interval_minutes}
                 onChange={(e) =>
                   setHallData({
                     ...hallData,
-                    interval_minutes: Number(e.target.value) || 0,
+                    interval_minutes: Math.max(0, Number(e.target.value) || 0), // 음수 방지
                   })
                 }
                 placeholder="예: 60"
@@ -527,11 +572,12 @@ export default function CreateStandardEstimate() {
               <input
                 type="number"
                 id="guarantees"
+                min="0"
                 value={hallData.guarantees}
                 onChange={(e) =>
                   setHallData({
                     ...hallData,
-                    guarantees: Number(e.target.value) || 0,
+                    guarantees: Math.max(0, Number(e.target.value) || 0),
                   })
                 }
                 placeholder="예: 100"
@@ -548,47 +594,43 @@ export default function CreateStandardEstimate() {
               <input
                 type="number"
                 id="parking"
+                min="0"
                 value={hallData.parking}
                 onChange={(e) =>
                   setHallData({
                     ...hallData,
-                    parking: Number(e.target.value) || 0,
+                    parking: Math.max(0, Number(e.target.value) || 0),
                   })
                 }
                 placeholder="예: 50"
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
-            <div>
-              <label
-                htmlFor="hall_type"
-                className="block mb-1 text-sm font-medium text-gray-700"
-              >
-                웨딩홀 타입
+
+            {/* ✨ 웨딩홀 타입 선택 UI (체크박스) */}
+            <div className="md:col-span-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                웨딩홀 타입 (중복 선택 가능) *
               </label>
-              <select
-                id="hall_type"
-                value={hallData.type}
-                onChange={(e) =>
-                  setHallData({ ...hallData, type: e.target.value })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md bg-white"
-              >
-                {[
-                  "호텔",
-                  "가든",
-                  "스몰",
-                  "컨벤션",
-                  "채플",
-                  "하우스",
-                  "야외",
-                ].map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                {weddingHallTypeOptions.map((typeOption) => (
+                  <label
+                    key={typeOption}
+                    className="flex items-center space-x-2 cursor-pointer text-sm hover:bg-gray-50 p-1 rounded"
+                  >
+                    <input
+                      type="checkbox"
+                      value={typeOption}
+                      checked={hallData.type.includes(typeOption)}
+                      onChange={() => handleHallTypeChange(typeOption)}
+                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-4 w-4"
+                    />
+                    <span>{typeOption}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
+
             <div>
               <label
                 htmlFor="hall_mood"
@@ -613,17 +655,22 @@ export default function CreateStandardEstimate() {
             </div>
           </div>
         </fieldset>
-        {/* --- 견적 정보 --- */}
+
+        {/* 견적 정보 필드셋 */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">💰 견적 정보</legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             <div>
-              <label className="block mb-1 text-sm font-medium">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 대관료 (원)
               </label>
               <input
                 type="text"
-                value={estimateData.hall_price.toLocaleString("ko-KR")}
+                value={
+                  estimateData.hall_price > 0
+                    ? estimateData.hall_price.toLocaleString("ko-KR")
+                    : ""
+                }
                 onChange={(e) => {
                   const value = e.target.value.replace(/,/g, "");
                   const numeric = Number(value);
@@ -636,44 +683,47 @@ export default function CreateStandardEstimate() {
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
-            {/* <div>
-                 <label className="block mb-1 text-sm font-medium">견적서 종류</label>
-                 <select value={estimateData.type} onChange={(e) => setEstimateData({ ...estimateData, type: e.target.value })} className="w-full p-2 border border-gray-300 rounded-md bg-white">
-                     {["standard", "admin", "user"].map((t) => (<option key={t} value={t}>{t}</option>))}
-                 </select>
-            </div> */}
+            {/* estimateData.type은 'standard'로 고정되어 UI에서 입력받을 필요 없을 수 있음 */}
             <div>
-              <label className="block mb-1 text-sm font-medium">날짜</label>
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                견적 기준 날짜 *
+              </label>
               <input
                 type="date"
                 value={estimateData.date}
                 onChange={(e) =>
                   setEstimateData({ ...estimateData, date: e.target.value })
                 }
+                required
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium">
-                예식 시작 시간
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                예식 시작 시간 *
               </label>
               <input
                 type="time"
-                step={600}
+                step={600} // 10분 단위
                 value={estimateData.time}
                 onChange={(e) =>
                   setEstimateData({ ...estimateData, time: e.target.value })
                 }
+                required
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 계약금 (원)
               </label>
               <input
                 type="text"
-                value={estimateData.penalty_amount.toLocaleString("ko-KR")}
+                value={
+                  estimateData.penalty_amount > 0
+                    ? estimateData.penalty_amount.toLocaleString("ko-KR")
+                    : ""
+                }
                 onChange={(e) => {
                   const value = e.target.value.replace(/,/g, "");
                   const numeric = Number(value);
@@ -687,8 +737,7 @@ export default function CreateStandardEstimate() {
               />
             </div>
             <div className="md:col-span-2">
-              {/* 계약금 조항은 넓게 */}
-              <label className="block mb-1 text-sm font-medium">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 계약금/위약금 조항
               </label>
               <textarea
@@ -706,7 +755,8 @@ export default function CreateStandardEstimate() {
             </div>
           </div>
         </fieldset>
-        {/* --- 대관료 포함 사항 --- */}
+
+        {/* 대관료 포함사항 필드셋 */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             ✨ 대관료 포함사항
@@ -714,36 +764,36 @@ export default function CreateStandardEstimate() {
           <div className="space-y-4 mt-2">
             {hallIncludeList.map((item, index) => (
               <div
-                key={index}
+                key={`include-${index}`}
                 className="border p-3 rounded relative bg-gray-50"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       대분류
                     </label>
                     <input
                       type="text"
                       value={item.category}
                       onChange={(e) => {
-                        const updated = [...hallIncludeList];
-                        updated[index].category = e.target.value;
-                        setHallIncludeList(updated);
+                        const updatedList = [...hallIncludeList];
+                        updatedList[index].category = e.target.value;
+                        setHallIncludeList(updatedList);
                       }}
                       placeholder="예: 기본 연출"
                       className="w-full p-2 border border-gray-300 rounded-md"
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       소분류 (상세 내용)
                     </label>
                     <textarea
                       value={item.subcategory}
                       onChange={(e) => {
-                        const updated = [...hallIncludeList];
-                        updated[index].subcategory = e.target.value;
-                        setHallIncludeList(updated);
+                        const updatedList = [...hallIncludeList];
+                        updatedList[index].subcategory = e.target.value;
+                        setHallIncludeList(updatedList);
                       }}
                       placeholder="예: 혼구용품, 웨딩캔들, 포토테이블"
                       className="w-full p-2 border border-gray-300 rounded-md"
@@ -754,12 +804,11 @@ export default function CreateStandardEstimate() {
                 <button
                   type="button"
                   onClick={() => {
-                    const updated = hallIncludeList.filter(
-                      (_, i) => i !== index
+                    setHallIncludeList((prev) =>
+                      prev.filter((_, i) => i !== index)
                     );
-                    setHallIncludeList(updated);
                   }}
-                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold"
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold p-1 rounded hover:bg-red-50"
                 >
                   삭제
                 </button>
@@ -768,8 +817,8 @@ export default function CreateStandardEstimate() {
             <button
               type="button"
               onClick={() =>
-                setHallIncludeList([
-                  ...hallIncludeList,
+                setHallIncludeList((prev) => [
+                  ...prev,
                   { category: "", subcategory: "" },
                 ])
               }
@@ -780,18 +829,18 @@ export default function CreateStandardEstimate() {
           </div>
         </fieldset>
 
-        {/* --- 식대 정보 --- */}
+        {/* 식대 정보 필드셋 */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">🍽 식대 정보</legend>
           <div className="space-y-4 mt-2">
             {mealTypes.map((meal, index) => (
               <div
-                key={index}
+                key={`meal-${index}`}
                 className="border p-3 rounded relative bg-gray-50"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       식사 종류
                     </label>
                     <input
@@ -807,7 +856,7 @@ export default function CreateStandardEstimate() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       구분
                     </label>
                     <select
@@ -827,12 +876,14 @@ export default function CreateStandardEstimate() {
                     </select>
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       가격 (원)
                     </label>
                     <input
                       type="text"
-                      value={meal.price.toLocaleString("ko-KR")}
+                      value={
+                        meal.price > 0 ? meal.price.toLocaleString("ko-KR") : ""
+                      }
                       onChange={(e) => {
                         const value = e.target.value.replace(/,/g, "");
                         const numeric = Number(value);
@@ -845,7 +896,7 @@ export default function CreateStandardEstimate() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       비고
                     </label>
                     <input
@@ -864,10 +915,9 @@ export default function CreateStandardEstimate() {
                 <button
                   type="button"
                   onClick={() => {
-                    const updated = mealTypes.filter((_, i) => i !== index);
-                    setMealTypes(updated);
+                    setMealTypes((prev) => prev.filter((_, i) => i !== index));
                   }}
-                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold"
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold p-1 rounded hover:bg-red-50"
                 >
                   삭제
                 </button>
@@ -876,8 +926,8 @@ export default function CreateStandardEstimate() {
             <button
               type="button"
               onClick={() =>
-                setMealTypes([
-                  ...mealTypes,
+                setMealTypes((prev) => [
+                  ...prev,
                   { meal_type: "", category: "대인", price: 0, extra: "" },
                 ])
               }
@@ -887,14 +937,15 @@ export default function CreateStandardEstimate() {
             </button>
           </div>
         </fieldset>
-        {/* --- 웨딩홀 패키지 --- */}
-        {/* <fieldset className="p-4 border border-gray-200 rounded-md">
+
+        {/* 웨딩홀 패키지 필드셋 */}
+        <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             🎁 홀 패키지 (선택)
           </legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             <div>
-              <label className="block mb-1 text-sm font-medium">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 패키지 종류
               </label>
               <select
@@ -912,7 +963,9 @@ export default function CreateStandardEstimate() {
               </select>
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium">패키지명</label>
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                패키지명
+              </label>
               <input
                 type="text"
                 value={packageData.name}
@@ -924,7 +977,7 @@ export default function CreateStandardEstimate() {
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm font-medium">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 금액 방식
               </label>
               <select
@@ -934,7 +987,7 @@ export default function CreateStandardEstimate() {
                   setPackageData({
                     ...packageData,
                     is_total_price: isTotal,
-                    total_price: isTotal ? packageData.total_price : 0,
+                    total_price: isTotal ? packageData.total_price : 0, // 개별 합산 시 총 가격 0으로 리셋
                   });
                 }}
                 className="w-full p-2 border border-gray-300 rounded-md bg-white"
@@ -945,12 +998,16 @@ export default function CreateStandardEstimate() {
             </div>
             {packageData.is_total_price && (
               <div>
-                <label className="block mb-1 text-sm font-medium">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   총 가격 (원)
                 </label>
                 <input
                   type="text"
-                  value={packageData.total_price.toLocaleString("ko-KR")}
+                  value={
+                    packageData.total_price > 0
+                      ? packageData.total_price.toLocaleString("ko-KR")
+                      : ""
+                  }
                   onChange={(e) => {
                     const value = e.target.value.replace(/,/g, "");
                     const numeric = Number(value);
@@ -967,25 +1024,26 @@ export default function CreateStandardEstimate() {
             {!packageData.is_total_price && (
               <div className="md:col-span-2 text-sm text-gray-500 mt-1">
                 💡 개별 금액 합산 선택 시, 아래 '개별 패키지 항목'들의 가격
-                합계가 사용됩니다. (총 가격은 0으로 자동 설정)
+                합계가 사용됩니다. (총 가격은 참고용)
               </div>
             )}
           </div>
-        </fieldset> */}
-        {/* --- 패키지 개별 항목 --- */}
-        {/* <fieldset className="p-4 border border-gray-200 rounded-md">
+        </fieldset>
+
+        {/* 패키지 개별 항목 필드셋 */}
+        <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             📦 개별 패키지 항목 (선택)
           </legend>
           <div className="space-y-4 mt-2">
             {packageItems.map((item, index) => (
               <div
-                key={index}
+                key={`package-item-${index}`}
                 className="border p-3 rounded relative bg-gray-50"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       항목 종류
                     </label>
                     <select
@@ -998,15 +1056,15 @@ export default function CreateStandardEstimate() {
                       className="w-full p-2 border border-gray-300 rounded-md bg-white"
                     >
                       <option value="">선택</option>
-                      {packageItemOptions.map((optionItem) => (
-                        <option key={optionItem.value} value={optionItem.value}>
-                          {optionItem.label}
+                      {packageItemOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
                         </option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       업체명
                     </label>
                     <input
@@ -1022,12 +1080,15 @@ export default function CreateStandardEstimate() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       가격 (원)
                     </label>
                     <input
                       type="text"
-                      value={item.price.toLocaleString("ko-KR")}
+                      value={
+                        item.price > 0 ? item.price.toLocaleString("ko-KR") : ""
+                      }
+                      disabled={packageData.is_total_price} // 통합 가격일 때 비활성화
                       onChange={(e) => {
                         const value = e.target.value.replace(/,/g, "");
                         const numeric = Number(value);
@@ -1035,12 +1096,18 @@ export default function CreateStandardEstimate() {
                         updated[index].price = isNaN(numeric) ? 0 : numeric;
                         setPackageItems(updated);
                       }}
-                      placeholder="숫자만 입력"
-                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder={
+                        packageData.is_total_price
+                          ? "통합 가격 사용 중"
+                          : "숫자만 입력"
+                      }
+                      className={`w-full p-2 border border-gray-300 rounded-md ${
+                        packageData.is_total_price ? "bg-gray-100" : ""
+                      }`}
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       참고 URL
                     </label>
                     <input
@@ -1056,7 +1123,7 @@ export default function CreateStandardEstimate() {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       설명
                     </label>
                     <textarea
@@ -1074,7 +1141,7 @@ export default function CreateStandardEstimate() {
                 </div>
                 <button
                   type="button"
-                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold"
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold p-1 rounded hover:bg-red-50"
                   onClick={() => {
                     setPackageItems((prev) =>
                       prev.filter((_, i) => i !== index)
@@ -1091,7 +1158,7 @@ export default function CreateStandardEstimate() {
                 setPackageItems((prev) => [
                   ...prev,
                   {
-                    type: "스튜디오",
+                    type: packageItemOptions[0].value,
                     company_name: "",
                     price: 0,
                     description: "",
@@ -1104,8 +1171,9 @@ export default function CreateStandardEstimate() {
               + 개별 항목 추가
             </button>
           </div>
-        </fieldset> */}
-        {/* --- 견적서 옵션 --- */}
+        </fieldset>
+
+        {/* 견적서 옵션 필드셋 */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             🧩 견적서 옵션 (선택)
@@ -1113,12 +1181,12 @@ export default function CreateStandardEstimate() {
           <div className="space-y-4 mt-2">
             {estimateOptions.map((option, index) => (
               <div
-                key={index}
+                key={`option-${index}`}
                 className="border p-3 rounded relative bg-gray-50"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       옵션명
                     </label>
                     <input
@@ -1134,12 +1202,16 @@ export default function CreateStandardEstimate() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       가격 (원)
                     </label>
                     <input
                       type="text"
-                      value={option.price.toLocaleString("ko-KR")}
+                      value={
+                        option.price > 0
+                          ? option.price.toLocaleString("ko-KR")
+                          : ""
+                      }
                       onChange={(e) => {
                         const value = e.target.value.replace(/,/g, "");
                         const numeric = Number(value);
@@ -1152,7 +1224,7 @@ export default function CreateStandardEstimate() {
                     />
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       필수 여부
                     </label>
                     <select
@@ -1169,7 +1241,7 @@ export default function CreateStandardEstimate() {
                     </select>
                   </div>
                   <div>
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       참고 URL
                     </label>
                     <input
@@ -1185,7 +1257,7 @@ export default function CreateStandardEstimate() {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block mb-1 text-sm font-medium">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       설명
                     </label>
                     <textarea
@@ -1203,7 +1275,7 @@ export default function CreateStandardEstimate() {
                 </div>
                 <button
                   type="button"
-                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold"
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-semibold p-1 rounded hover:bg-red-50"
                   onClick={() => {
                     setEstimateOptions((prev) =>
                       prev.filter((_, i) => i !== index)
@@ -1234,7 +1306,8 @@ export default function CreateStandardEstimate() {
             </button>
           </div>
         </fieldset>
-        {/* --- 기타 메모사항 --- */}
+
+        {/* 기타 정보 필드셋 */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">📝 기타 정보</legend>
           <div className="mt-2">
@@ -1256,15 +1329,15 @@ export default function CreateStandardEstimate() {
             />
           </div>
         </fieldset>
-        {/* --- 사진 업로드 (DnD 적용) --- */}
+
+        {/* 사진 업로드 필드셋 */}
         <fieldset className="p-4 border border-gray-200 rounded-md">
           <legend className="text-lg font-semibold px-2">
             🖼️ 웨딩홀 사진 업로드
           </legend>
-
-          {/* 대표 사진 */}
-          <div className="mb-6">
-            {/* 하단 마진 추가 */}
+          <div className="mb-6 mt-2">
+            {" "}
+            {/* mt-2 추가 */}
             <label className="block mb-1 font-medium text-gray-700">
               대표 사진 (1장)
             </label>
@@ -1272,11 +1345,10 @@ export default function CreateStandardEstimate() {
               type="file"
               accept="image/*"
               onChange={handleMainPhotoUpload}
-              className="mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" // Tailwind 스타일 개선
+              className="mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
             />
             {mainPhotoPreview && (
               <div className="relative w-32 h-32 mt-2">
-                {/* 상단 마진 추가 */}
                 <img
                   src={mainPhotoPreview}
                   alt="대표 사진 미리보기"
@@ -1284,7 +1356,7 @@ export default function CreateStandardEstimate() {
                 />
                 <button
                   type="button"
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center p-0 leading-none cursor-pointer z-5" // 크기 조정
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center p-0 leading-none cursor-pointer z-10"
                   onClick={() => {
                     setMainPhoto(null);
                     if (mainPhotoPreview) URL.revokeObjectURL(mainPhotoPreview);
@@ -1297,11 +1369,9 @@ export default function CreateStandardEstimate() {
               </div>
             )}
           </div>
-
-          {/* 추가 사진 (Dnd Kit 적용) */}
           <div>
             <label className="block mb-1 font-medium text-gray-700">
-              추가 사진 (최대 9장) -
+              추가 사진 (최대 9장) -{" "}
               <span className="text-blue-600 font-normal">
                 순서를 드래그하여 변경하세요.
               </span>
@@ -1314,21 +1384,19 @@ export default function CreateStandardEstimate() {
               disabled={subPhotoItems.length >= 9}
               className={`mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer ${
                 subPhotoItems.length >= 9 ? "opacity-50 cursor-not-allowed" : ""
-              }`} // Tailwind 스타일 개선
+              }`}
             />
-            {/* Dnd Kit 영역 */}
-            {subPhotoItems.length > 0 && ( // 사진이 있을 때만 Dnd 영역 렌더링
+            {subPhotoItems.length > 0 && (
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={subPhotoItems.map((p) => p.id)} // ID 배열 전달
-                  strategy={rectSortingStrategy} // 그리드 전략
+                  items={subPhotoItems.map((p) => p.id)}
+                  strategy={rectSortingStrategy}
                 >
-                  {/* 그리드 컨테이너 */}
-                  <div className="flex items-center justify-center flex-wrap gap-3 p-2 rounded border border-gray-200 bg-gray-50 min-h-[8rem]">
+                  <div className="flex flex-wrap gap-3 p-2 rounded border border-gray-200 bg-gray-50 min-h-[8rem] items-center justify-start">
                     {subPhotoItems.map((photo) => (
                       <SortablePhotoItem
                         key={photo.id}
@@ -1340,30 +1408,53 @@ export default function CreateStandardEstimate() {
                 </SortableContext>
               </DndContext>
             )}
-            {subPhotoItems.length === 0 && ( // 사진 없을 때 안내 문구
+            {subPhotoItems.length === 0 && (
               <div className="mt-2 p-4 border border-dashed border-gray-300 rounded text-center text-gray-500 text-sm">
                 추가 사진을 업로드 해주세요.
               </div>
             )}
           </div>
         </fieldset>
-        {/* --- 피드백 및 제출 버튼 --- */}
-        <div className="mt-6">
-          {/* 상단 마진 추가 */}
-          {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
-          {successMessage && (
-            <p className="text-green-600 text-sm mb-3">{successMessage}</p>
-          )}
+
+        <div className="mt-8 pt-6 border-t border-gray-300">
+          {" "}
+          {/* 간격 및 구분선 스타일 개선 */}
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full px-4 py-3 text-white rounded-md font-semibold transition duration-150 ease-in-out ${
+            className={`w-full px-6 py-3 text-base font-semibold text-white rounded-lg shadow-md transition duration-150 ease-in-out flex items-center justify-center ${
               isLoading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             }`}
           >
-            {isLoading ? "등록 처리 중..." : "웨딩 업체 등록하기"}
+            {isLoading ? (
+              <>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                등록 처리 중...
+              </>
+            ) : (
+              "웨딩 업체 등록하기"
+            )}
           </button>
         </div>
       </form>
