@@ -58,6 +58,16 @@ interface SubPhotoItemDnd {
   is_visible?: boolean | null;
 }
 
+const weddingHallTypeOptions = [
+  "호텔",
+  "가든",
+  "스몰",
+  "컨벤션",
+  "채플",
+  "하우스",
+  "야외",
+];
+
 const packageItemOptions = [
   { value: "스튜디오", label: "스튜디오" },
   { value: "드레스", label: "드레스" },
@@ -158,8 +168,8 @@ function UpdateFormContent() {
     {}
   );
   const [hallData, setHallData] = useState<
-    Partial<Omit<HallData, "wedding_company" | "hall_photos" | "hall_includes">>
-  >({});
+    Partial<Omit<HallData, "type">> & { type?: string[] } // type을 string[]으로 명시적으로 설정
+  >({ type: [] }); // type을 빈 배열로 초기화
   const [hallIncludeList, setHallIncludeList] = useState<
     Partial<HallIncludeData>[]
   >([]);
@@ -212,24 +222,57 @@ function UpdateFormContent() {
           );
         }
         const data: DetailedEstimate = await response.json();
+        console.log("data", data);
 
         // --- 상태 초기화 로직 (기존 코드와 동일하게 유지) ---
         // 회사 정보
-        if (data.hall?.wedding_company) {
-          setCompanyData({
-            ...data.hall.wedding_company,
-            // WeddingCompanyData에 lat, lng이 있으므로 그대로 사용
-          });
-        }
-
-        // 홀 정보 (중첩 제외)
         if (data.hall) {
           const { wedding_company, hall_photos, hall_includes, ...hallBase } =
             data.hall;
-          setHallData(hallBase);
+          setCompanyData({
+            ...data.hall.wedding_company,
+          });
+
+          // ✨ 수정된 부분: type을 배열로 처리 (백엔드 반환값 형태에 따라 조정)
+          const rawHallTypeFromApi = hallBase.type; // API에서 온 원본 값
+          console.log("🔵 Raw hallBase.type from API:", rawHallTypeFromApi);
+
+          let hallTypeArray: any = [];
+          if (
+            typeof rawHallTypeFromApi === "string" &&
+            rawHallTypeFromApi.trim() !== ""
+          ) {
+            // API가 쉼표로 구분된 단일 문자열을 반환하는 경우 (예: "가든,야외")
+            hallTypeArray = rawHallTypeFromApi
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+          } else if (Array.isArray(rawHallTypeFromApi)) {
+            // API가 이미 배열을 반환하지만, 각 요소가 쉼표 포함 문자열일 수 있으므로 추가 처리 (안전장치)
+            hallTypeArray = rawHallTypeFromApi.flatMap((item) =>
+              typeof item === "string"
+                ? item
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                : []
+            );
+          }
+          // 중복 제거 (선택 사항이지만 권장)
+          hallTypeArray = [...new Set(hallTypeArray)];
+
+          console.log(
+            "🟡 Calculated hallTypeArray (after split logic):",
+            hallTypeArray
+          );
+
+          setHallData({ ...hallBase, type: hallTypeArray }); // type을 배열로 설정
+          console.log("halldata", hallData.type);
+          // --- 수정 끝 ---
+
           setHallIncludeList(
             hall_includes?.map((item) => ({ ...item, id: item.id })) || []
-          ); // id 포함
+          );
         }
 
         // 견적 기본 정보 (중첩 제외)
@@ -349,6 +392,16 @@ function UpdateFormContent() {
       ...prev,
       [name]: numFields.includes(name) ? Number(value) || null : value,
     }));
+  };
+
+  const handleHallTypeChange = (selectedType: string) => {
+    setHallData((prevHallData) => {
+      const currentTypes = prevHallData.type || []; // 항상 배열 보장
+      const newTypes = currentTypes.includes(selectedType)
+        ? currentTypes.filter((type) => type !== selectedType)
+        : [...currentTypes, selectedType];
+      return { ...prevHallData, type: newTypes };
+    });
   };
 
   const handleEstimateInputChange = (
@@ -703,6 +756,13 @@ function UpdateFormContent() {
       return;
     }
 
+    if (!hallData.type || hallData.type.length === 0) {
+      setError("웨딩홀 타입을 하나 이상 선택해주세요.");
+      setIsSubmitting(false);
+      window.scrollTo(0, 0);
+      return;
+    }
+
     // 사진 관련 유효성 검사 (예: 대표 사진 필수 등)
     if (!mainPhotoDisplay?.preview && !mainPhotoFile) {
       setError("대표 사진을 등록해주세요.");
@@ -838,7 +898,7 @@ function UpdateFormContent() {
               interval_minutes: hallData.interval_minutes,
               guarantees: hallData.guarantees,
               parking: hallData.parking,
-              type: hallData.type || null,
+              type: hallData.type || [], // 항상 배열 전달
               mood: hallData.mood || null,
             }
           : undefined,
@@ -1193,35 +1253,28 @@ function UpdateFormContent() {
                 className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
               />
             </div>
-            <div>
-              <label
-                htmlFor="hall_type"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                웨딩홀 타입
+
+            <div className="md:col-span-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                웨딩홀 타입 (중복 선택 가능) *
               </label>
-              <select
-                id="hall_type"
-                name="type"
-                value={hallData.type || ""}
-                onChange={handleHallInputChange}
-                className="w-full p-2.5 border border-gray-300 rounded-md bg-white text-sm"
-              >
-                <option value="">선택</option>
-                {[
-                  "야외",
-                  "호텔",
-                  "가든",
-                  "스몰",
-                  "하우스",
-                  "컨벤션",
-                  "채플",
-                ].map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                {weddingHallTypeOptions.map((typeOption) => (
+                  <label
+                    key={typeOption}
+                    className="flex items-center space-x-2 cursor-pointer text-sm hover:bg-gray-50 p-1 rounded"
+                  >
+                    <input
+                      type="checkbox"
+                      value={typeOption}
+                      checked={(hallData.type || []).includes(typeOption)}
+                      onChange={() => handleHallTypeChange(typeOption)}
+                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-4 w-4"
+                    />
+                    <span>{typeOption}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
             <div>
               <label
