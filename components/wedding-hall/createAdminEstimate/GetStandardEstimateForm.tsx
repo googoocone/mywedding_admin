@@ -15,6 +15,16 @@ interface CreateStandardEstimateProps {
   onCancel?: () => void;
 }
 
+const weddingHallTypeOptions = [
+  "호텔",
+  "가든",
+  "스몰",
+  "컨벤션",
+  "채플",
+  "하우스",
+  "야외",
+];
+
 const packageItemOptions = [
   { value: "스튜디오", label: "스튜디오" },
   { value: "드레스", label: "드레스" },
@@ -62,7 +72,7 @@ export default function GetStandardEstimate({
   const [estimateData, setEstimateData] = useState({
     hall_price: 0,
     meal_type: "", // 이 필드의 목적에 따라 initialData에서 값을 가져와야 함 (MealPrice 배열과 다름)
-    type: "standard", // 기본값
+    type: "admin", // 기본값
     date: "", // ISO 날짜 문자열
     time: "",
     penalty_amount: 0,
@@ -382,16 +392,16 @@ export default function GetStandardEstimate({
         interval_minutes: hallData.interval_minutes,
         guarantees: hallData.guarantees,
         parking: hallData.parking,
-        type: hallData.type,
+        // type: hallData.type,
         mood: hallData.mood,
       },
     };
 
     // 백엔드 API 호출 (수정 엔드포인트 호출)
     // 이 컴포넌트가 관리자 수정 전용이므로 항상 PUT/PATCH 호출
-    const apiEndpoint = `http://localhost:8000/admin/create_admin_estimate`; // 관리자 수정 엔드포인트 예시
+    const apiEndpoint = `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/create_admin_estimate`; // 관리자 수정 엔드포인트 예시
     const httpMethod = "POST"; // 관리자 수정은 PUT 또는 PATCH 사용
-
+    console.log("payload", payload);
     try {
       const response = await fetch(apiEndpoint, {
         method: httpMethod,
@@ -426,36 +436,15 @@ export default function GetStandardEstimate({
   const formTitle = "관리자 견적서 등록"; // 제목 고정
 
   return (
-    <div
-      style={{
-        maxWidth: "800px", // 적절한 너비
-        margin: "2rem auto",
-        padding: "2rem",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
+    <div className="max-w-4xl mx-auto my-10 p-6 sm:p-8 border border-gray-300 rounded-xl shadow-lg bg-white">
       <h1 className="text-center text-2xl mt-5 mb-10 font-semibold">
         {formTitle}
       </h1>
-      {/* 업체 검색 필드 - 관리자 수정에서는 필요 없음 */}
-      {/* initialData가 항상 있다고 가정하면 이 부분을 아예 렌더링하지 않습니다. */}
-      {/*
-             <div style={{ marginBottom: "1rem" }}>
-                 <label htmlFor="address" style={{ display: "block", marginBottom: "0.25rem" }}>
-                     <NaverPlaceSearch setCompanyData={setCompanyData} />
-                     주소 :
-                 </label>
-                 <div className="w-full h-10 border-gray-300 border">
-                     {companyData.address}
-                 </div>
-             </div>
-             */}
       <form onSubmit={handleSubmit}>
-        {/* 업체 정보 필드셋 */}
         <fieldset className="mb-4 p-4 border border-gray-200">
-          <legend className="text-xl font-semibold">업체 정보</legend>
-          {/* 업체명은 읽기 전용으로 표시 */}
+          <legend className="text-xl font-semibold text-gray-700 px-2">
+            🏢 업체 정보
+          </legend>
           <label>업체명</label>
           <div className="w-full mb-2 p-2 border border-gray-300 bg-gray-100 rounded">
             {companyData.name}
@@ -481,122 +470,273 @@ export default function GetStandardEstimate({
           />
         </fieldset>
         {/* 홀 정보 필드셋 */}
-        <fieldset className="mb-4 p-4 border border-gray-200">
-          <legend className="text-xl font-semibold">홀 정보</legend>
-          {/* 홀 이름은 읽기 전용으로 표시 */}
-          <label>홀 이름</label>
-          <div className="w-full mb-4 p-2 border border-gray-300 bg-gray-100 rounded">
-            {hallData.name}
+        <fieldset className="p-5 mb-4 border border-gray-200 rounded-lg shadow-sm">
+          <legend className="text-xl font-semibold text-gray-700 px-2">
+            🏛️ 홀 정보
+          </legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-3">
+            <div>
+              <label
+                htmlFor="hall_name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                홀 이름
+              </label>
+              <div className="w-full p-2.5 border border-gray-300 rounded-md text-sm">
+                {hallData.name}
+              </div>
+            </div>
+            {/* 다른 hallData 필드들은 수정 가능하도록 입력 필드 사용 */}
+            <div>
+              <label>예식 간격</label>
+              <input
+                type="number"
+                value={hallData.interval_minutes}
+                onChange={(e) =>
+                  setHallData({
+                    ...hallData,
+                    interval_minutes: Number(e.target.value),
+                  })
+                }
+                className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
+                placeholder="예식 간격(분)"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="hall_guarantees"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                보증 인원
+              </label>
+              <input
+                type="number"
+                value={hallData.guarantees}
+                onChange={(e) =>
+                  setHallData({
+                    ...hallData,
+                    guarantees: Number(e.target.value),
+                  })
+                }
+                className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
+                placeholder="보증 인원"
+              />
+            </div>
+            <div>
+              <label>주차 대수</label>
+              <input
+                type="number"
+                value={hallData.parking}
+                onChange={(e) =>
+                  setHallData({ ...hallData, parking: Number(e.target.value) })
+                }
+                className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
+                placeholder="주차 대수"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                웨딩홀 타입 (중복 선택 가능) *
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+                {weddingHallTypeOptions.map((typeOption) => (
+                  <label
+                    key={typeOption}
+                    className="flex items-center space-x-2 cursor-pointer text-sm hover:bg-gray-50 p-1 rounded"
+                  >
+                    <input
+                      type="checkbox"
+                      value={typeOption}
+                      checked={(hallData.type || []).includes(typeOption)}
+                      // onChange={() => handleHallTypeChange(typeOption)}
+                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-4 w-4"
+                    />
+                    <span>{typeOption}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label>웨딩홀 분위기</label>
+              <select
+                value={hallData.mood}
+                onChange={(e) =>
+                  setHallData({ ...hallData, mood: e.target.value })
+                }
+                className="w-full mb-4 p-2 border border-gray-300"
+              >
+                {/* 옵션들은 models/enums.py 의 MoodEnum 에 맞춰야 함 */}
+                {["밝은", "어두운"].map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          {/* 다른 hallData 필드들은 수정 가능하도록 입력 필드 사용 */}
-          <label>예식 간격</label>
-          <input
-            type="number"
-            value={hallData.interval_minutes}
-            onChange={(e) =>
-              setHallData({
-                ...hallData,
-                interval_minutes: Number(e.target.value),
-              })
-            }
-            className="w-full mb-4 p-2 border border-gray-300"
-            placeholder="예식 간격(분)"
-          />
-          <label>보증 인원</label>
-          <input
-            type="number"
-            value={hallData.guarantees}
-            onChange={(e) =>
-              setHallData({ ...hallData, guarantees: Number(e.target.value) })
-            }
-            className="w-full mb-4 p-2 border border-gray-300"
-            placeholder="보증 인원"
-          />
-          <label>주차 대수</label>
-          <input
-            type="number"
-            value={hallData.parking}
-            onChange={(e) =>
-              setHallData({ ...hallData, parking: Number(e.target.value) })
-            }
-            className="w-full mb-4 p-2 border border-gray-300"
-            placeholder="주차 대수"
-          />
-          <label>웨딩홀 타입</label>
-          <select
-            value={hallData.type}
-            onChange={(e) => setHallData({ ...hallData, type: e.target.value })}
-            className="w-full mb-4 p-2 border border-gray-300"
-          >
-            {/* 옵션들은 models/enums.py 의 HallTypeEnum 에 맞춰야 함 */}
-            {["호텔", "가든", "스몰", "컨벤션", "채플", "야외", "하우스"].map(
-              (t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              )
-            )}
-          </select>
-          <label>웨딩홀 분위기</label>
-          <select
-            value={hallData.mood}
-            onChange={(e) => setHallData({ ...hallData, mood: e.target.value })}
-            className="w-full mb-4 p-2 border border-gray-300"
-          >
-            {/* 옵션들은 models/enums.py 의 MoodEnum 에 맞춰야 함 */}
-            {["밝은", "어두운"].map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
         </fieldset>
         {/* 웨딩홀 포함 사항 필드셋 */}
-        <fieldset className="mb-4 p-4 border border-gray-200">
-          <legend className="text-xl font-semibold">대관료 포함사항</legend>
-          {/* hallIncludeList 맵핑 및 입력 필드, 삭제 버튼 */}
-          {/* 삭제 버튼은 필요에 따라 관리자 수정에서도 활성화 */}
-          {hallIncludeList.map((item, index) => (
-            <div
-              key={item.id || index}
-              className="mb-4 border p-2 rounded relative"
-            >
-              <label className="block mb-1">대분류</label>
+        {/* 견적 정보 필드셋 */}
+        <fieldset className="p-5 mb-4 border border-gray-200 rounded-lg shadow-sm">
+          <legend className="text-xl font-semibold text-gray-700 px-2">
+            💰 견적 기본 정보
+          </legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-3">
+            <div>
+              <label
+                htmlFor="estimate_hall_price"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                대관료 (원)
+              </label>
               <input
                 type="text"
-                value={item.category}
+                value={estimateData.hall_price.toLocaleString("ko-KR")}
                 onChange={(e) => {
-                  const updated = [...hallIncludeList];
-                  updated[index].category = e.target.value;
-                  setHallIncludeList(updated);
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
+                  setEstimateData({
+                    ...estimateData,
+                    hall_price: isNaN(numeric) ? 0 : numeric,
+                  });
                 }}
-                placeholder="포함사항 대분류"
+                placeholder="예: 1,000,000"
+                className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
+              />
+            </div>
+            <div>
+              <label className="block mb-1">견적서 종류</label>
+              <select
+                value={estimateData.type}
+                onChange={(e) =>
+                  setEstimateData({ ...estimateData, type: e.target.value })
+                }
+                className="w-full mb-2 p-2 border border-gray-300"
+              >
+                {/* 옵션들은 models/enums.py 의 EstimateTypeEnum 에 맞춰야 함 */}
+                {["admin"].map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block mb-1">견적서 날짜</label>
+              <input
+                type="date"
+                value={estimateData.date}
+                onChange={(e) =>
+                  setEstimateData({ ...estimateData, date: e.target.value })
+                }
                 className="w-full mb-2 p-2 border border-gray-300"
               />
-              <label className="block mb-1">소분류</label>
-              <textarea
-                value={item.subcategory}
-                onChange={(e) => {
-                  const updated = [...hallIncludeList];
-                  updated[index].subcategory = e.target.value;
-                  setHallIncludeList(updated);
-                }}
-                placeholder="포함사항 소분류"
-                className="w-full p-2 border border-gray-300"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const updated = hallIncludeList.filter((_, i) => i !== index);
-                  setHallIncludeList(updated);
-                }}
-                className="absolute top-2 right-2 text-red-500 text-sm cursor-pointer hover:font-semibold"
-              >
-                {" "}
-                삭제{" "}
-              </button>
             </div>
-          ))}
+            <div>
+              <label className="block mb-1">예식 시작 시간</label>
+              <input
+                type="time"
+                value={estimateData.time}
+                onChange={(e) =>
+                  setEstimateData({
+                    ...estimateData,
+                    time: e.target.value,
+                  })
+                }
+                className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
+              />
+            </div>
+            <div>
+              <label className="block mb-1">계약금 (원)</label>
+              <input
+                type="text"
+                value={estimateData.penalty_amount.toLocaleString("ko-KR")}
+                className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/,/g, "");
+                  const numeric = Number(value);
+                  setEstimateData({
+                    ...estimateData,
+                    penalty_amount: isNaN(numeric) ? 0 : numeric,
+                  });
+                }}
+              ></input>
+            </div>
+            <div className="md:col-span-2">
+              <label
+                htmlFor="estimate_penalty_detail"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                계약금/위약금 조항
+              </label>
+              <textarea
+                value={estimateData.penalty_detail}
+                onChange={(e) =>
+                  setEstimateData({
+                    ...estimateData,
+                    penalty_detail: e.target.value,
+                  })
+                }
+                className="w-full h-[160px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+          </div>
+        </fieldset>
+        {/* 대관료 포함사항 */}
+        <fieldset className="p-5 mb-4 border border-gray-200 rounded-lg shadow-sm">
+          <legend className="text-xl font-semibold text-gray-700 px-2">
+            ✨ 대관료 포함사항
+          </legend>
+          <div className="space-y-4 mt-3">
+            {hallIncludeList.map((item, index) => (
+              <div
+                key={item.id || index}
+                className="p-3 border border-gray-200 rounded-md relative bg-gray-50"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+                  <div>
+                    <label className="block mb-1">대분류</label>
+                    <input
+                      type="text"
+                      value={item.category}
+                      onChange={(e) => {
+                        const updated = [...hallIncludeList];
+                        updated[index].category = e.target.value;
+                        setHallIncludeList(updated);
+                      }}
+                      placeholder="포함사항 대분류"
+                      className="w-full mb-2 p-2 border border-gray-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-1">소분류</label>
+                    <textarea
+                      value={item.subcategory}
+                      onChange={(e) => {
+                        const updated = [...hallIncludeList];
+                        updated[index].subcategory = e.target.value;
+                        setHallIncludeList(updated);
+                      }}
+                      placeholder="포함사항 소분류"
+                      className="w-full p-2 border border-gray-300"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = hallIncludeList.filter(
+                      (_, i) => i !== index
+                    );
+                    setHallIncludeList(updated);
+                  }}
+                  className="absolute top-2 right-2 text-red-500 text-sm cursor-pointer hover:font-semibold"
+                >
+                  삭제
+                </button>
+              </div>
+            ))}
+          </div>
           {/* 포함사항 추가 버튼 */}
           <button
             type="button"
@@ -608,192 +748,124 @@ export default function GetStandardEstimate({
             }
             className="w-full bg-green-500 text-white p-2 rounded cursor-pointer hover:font-semibold"
           >
-            {" "}
-            + 포함사항 추가{" "}
+            + 포함사항 추가
           </button>
-        </fieldset>
-        {/* 견적 정보 필드셋 */}
-        <fieldset className="mb-4 p-4 border border-gray-200">
-          <legend className="text-xl font-semibold">💰 견적 정보</legend>
-          {/* estimateData 필드들 (대관료, 종류, 날짜) */}
-          <label className="block mb-1">대관료</label>
-          <input
-            type="text"
-            value={estimateData.hall_price.toLocaleString("ko-KR")}
-            onChange={(e) => {
-              const value = e.target.value.replace(/,/g, "");
-              const numeric = Number(value);
-              setEstimateData({
-                ...estimateData,
-                hall_price: isNaN(numeric) ? 0 : numeric,
-              });
-            }}
-            placeholder="예: 1,000,000"
-            className="w-full mb-2 p-2 border border-gray-300"
-          />
-
-          <label className="block mb-1">견적서 종류</label>
-          <select
-            value={estimateData.type}
-            onChange={(e) =>
-              setEstimateData({ ...estimateData, type: e.target.value })
-            }
-            className="w-full mb-2 p-2 border border-gray-300"
-          >
-            {/* 옵션들은 models/enums.py 의 EstimateTypeEnum 에 맞춰야 함 */}
-            {["admin"].map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-
-          <label className="block mb-1">날짜</label>
-          <input
-            type="date"
-            value={estimateData.date}
-            onChange={(e) =>
-              setEstimateData({ ...estimateData, date: e.target.value })
-            }
-            className="w-full mb-2 p-2 border border-gray-300"
-          />
-          <label className="block mb-1">예식 시작 시간</label>
-          <input
-            type="time"
-            value={estimateData.time}
-            onChange={(e) =>
-              setEstimateData({
-                ...estimateData,
-                time: e.target.value,
-              })
-            }
-            className="w-[200px] h-[40px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-
-          <label className="block mb-1">계약금</label>
-          <input
-            type="text"
-            value={estimateData.penalty_amount.toLocaleString("ko-KR")}
-            className="w-[200px] h-[40px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            onChange={(e) => {
-              const value = e.target.value.replace(/,/g, "");
-              const numeric = Number(value);
-              setEstimateData({
-                ...estimateData,
-                penalty_amount: isNaN(numeric) ? 0 : numeric,
-              });
-            }}
-          ></input>
-          <label className="block mb-1">계약금 조항</label>
-          <textarea
-            value={estimateData.penalty_detail}
-            onChange={(e) =>
-              setEstimateData({
-                ...estimateData,
-                penalty_detail: e.target.value,
-              })
-            }
-            className="w-full h-[160px] px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
         </fieldset>
         {/* 식대 정보 필드셋 */}
-        <fieldset className="mb-4 p-4 border border-gray-200">
-          <legend className="text-xl font-semibold">🍽 식대 정보</legend>
-          {/* mealTypes 맵핑 및 입력 필드, 삭제 버튼 */}
-          {mealTypes.map((meal, index) => (
-            <div
-              key={meal.id || index}
-              className="mb-4 border p-3 rounded relative"
+        <fieldset className="p-5 mb-4 border border-gray-200 rounded-lg shadow-sm">
+          <legend className="text-xl font-semibold text-gray-700 px-2">
+            🍽 식대 정보
+          </legend>
+          <div className="space-y-4 mt-3">
+            {/* mealTypes 맵핑 및 입력 필드, 삭제 버튼 */}
+            {mealTypes.map((meal, index) => (
+              <div
+                key={meal.id || index}
+                className="p-3 border border-gray-200 rounded-md relative bg-gray-50"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = mealTypes.filter((_, i) => i !== index);
+                      setMealTypes(updated);
+                    }}
+                    className="absolute top-2 right-2 text-red-500 text-sm hover:font-semibold cursor-pointer"
+                  >
+                    삭제
+                  </button>
+                  <div>
+                    {/* 식사 종류 */}
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      식사 종류
+                    </label>
+                    <input
+                      type="text"
+                      value={meal.meal_type}
+                      onChange={(e) => {
+                        const updated = [...mealTypes];
+                        updated[index].meal_type = e.target.value;
+                        setMealTypes(updated);
+                      }}
+                      placeholder="예: 뷔페"
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                  {/* 구분 */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      구분
+                    </label>
+                    <select
+                      value={meal.category}
+                      onChange={(e) => {
+                        const updated = [...mealTypes];
+                        updated[index].category = e.target.value;
+                        setMealTypes(updated);
+                      }}
+                      className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm"
+                    >
+                      {/* 옵션들은 models/enums.py 의 MealCategoryEnum 에 맞춰야 함 */}
+                      {["대인", "소인", "미취학", "음주류"].map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {/* 가격 */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      가격 (원)
+                    </label>
+                    <input
+                      type="text"
+                      value={meal.price.toLocaleString("ko-KR")}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/,/g, "");
+                        const numeric = Number(value);
+                        const updated = [...mealTypes];
+                        updated[index].price = isNaN(numeric) ? 0 : numeric;
+                        setMealTypes(updated);
+                      }}
+                      placeholder="예: 50,000"
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                  {/* 비고 */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      비고
+                    </label>
+                    <input
+                      type="text"
+                      value={meal.extra}
+                      onChange={(e) => {
+                        const updated = [...mealTypes];
+                        updated[index].extra = e.target.value;
+                        setMealTypes(updated);
+                      }}
+                      placeholder="예: 10명 무료"
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            {/* 식대 항목 추가 버튼 */}
+            <button
+              type="button"
+              onClick={() =>
+                setMealTypes([
+                  ...mealTypes,
+                  { meal_type: "", category: "대인", price: 0, extra: "" },
+                ])
+              }
+              className="w-full bg-green-500 text-white p-2 rounded hover:font-semibold cursor-pointer"
             >
-              {" "}
-              {/* key는 id 또는 index */}
-              {/* 삭제 버튼 */}
-              <button
-                type="button"
-                onClick={() => {
-                  const updated = mealTypes.filter((_, i) => i !== index);
-                  setMealTypes(updated);
-                }}
-                className="absolute top-2 right-2 text-red-500 text-sm hover:font-semibold cursor-pointer"
-              >
-                {" "}
-                삭제{" "}
-              </button>
-              {/* 식사 종류 */}
-              <label className="block mb-1">식사 종류</label>
-              <input
-                type="text"
-                value={meal.meal_type}
-                onChange={(e) => {
-                  const updated = [...mealTypes];
-                  updated[index].meal_type = e.target.value;
-                  setMealTypes(updated);
-                }}
-                placeholder="예: 뷔페"
-                className="w-full mb-2 p-2 border border-gray-300"
-              />
-              {/* 구분 */}
-              <label className="block mb-1">구분</label>
-              <select
-                value={meal.category}
-                onChange={(e) => {
-                  const updated = [...mealTypes];
-                  updated[index].category = e.target.value;
-                  setMealTypes(updated);
-                }}
-                className="w-full mb-2 p-2 border border-gray-300"
-              >
-                {/* 옵션들은 models/enums.py 의 MealCategoryEnum 에 맞춰야 함 */}
-                {["대인", "소인", "미취학", "음주류"].map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              {/* 가격 */}
-              <label className="block mb-1">가격</label>
-              <input
-                type="text"
-                value={meal.price.toLocaleString("ko-KR")}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/,/g, "");
-                  const numeric = Number(value);
-                  const updated = [...mealTypes];
-                  updated[index].price = isNaN(numeric) ? 0 : numeric;
-                  setMealTypes(updated);
-                }}
-                placeholder="예: 50,000"
-                className="w-full mb-2 p-2 border border-gray-300"
-              />
-              {/* 비고 */}
-              <label className="block mb-1">비고</label>
-              <input
-                type="text"
-                value={meal.extra}
-                onChange={(e) => {
-                  const updated = [...mealTypes];
-                  updated[index].extra = e.target.value;
-                  setMealTypes(updated);
-                }}
-                placeholder="예: 10명 무료"
-                className="w-full mb-2 p-2 border border-gray-300"
-              />
-            </div>
-          ))}
-          {/* 식대 항목 추가 버튼 */}
-          <button
-            type="button"
-            onClick={() =>
-              setMealTypes([
-                ...mealTypes,
-                { meal_type: "", category: "대인", price: 0, extra: "" },
-              ])
-            }
-            className="w-full bg-green-500 text-white p-2 rounded hover:font-semibold cursor-pointer"
-          >
-            {" "}
-            + 식대 항목 추가{" "}
-          </button>
+              + 식대 항목 추가
+            </button>
+          </div>
         </fieldset>
         {/* 웨딩 패키지 필드셋 */}
         {/* WeddingPackageData 단일 객체 상태지만, 백엔드는 배열로 줍니다. 필요에 따라 폼 상태를 배열로 변경 고려 */}
@@ -988,127 +1060,148 @@ export default function GetStandardEstimate({
               }
               className="w-full px-4 py-2 bg-green-500 text-white rounded cursor-pointer hover:font-semibold"
             >
-              {" "}
-              + 항목 추가{" "}
+              + 항목 추가
             </button>
           </fieldset>
         </fieldset>
         {/* 견적서 옵션 필드셋 */}
-        <fieldset className="mb-4 p-4 border border-gray-200">
-          <legend className="text-xl font-semibold">🧩 견적서 옵션</legend>
-          {/* estimateOptions 맵핑 및 입력 필드, 필수 여부, 설명, URL, 삭제 버튼 */}
-          {estimateOptions.map((option, index) => (
-            <div
-              key={option.id || index}
-              className="mb-4 border border-gray-300 p-4 rounded relative"
+        <fieldset className="p-5 mb-4 border border-gray-200 rounded-lg shadow-sm">
+          <legend className="text-xl font-semibold text-gray-700 px-2">
+            🧩 견적서 옵션
+          </legend>
+          <div className="space-y-4 mt-3">
+            {estimateOptions.map((option, index) => (
+              <div
+                key={option.id || index}
+                className="p-3 border border-gray-200 rounded-md relative bg-gray-50"
+              >
+                {/* 삭제 버튼 */}
+                <button
+                  type="button"
+                  className="absolute top-2 right-2 text-red-500 cursor-pointer hover:font-semibold"
+                  onClick={() =>
+                    setEstimateOptions((prev) =>
+                      prev.filter((_, i) => i !== index)
+                    )
+                  }
+                >
+                  삭제
+                </button>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
+                  {/* 옵션명 */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      옵션명
+                    </label>
+                    <input
+                      type="text"
+                      value={option.name}
+                      onChange={(e) => {
+                        const updated = [...estimateOptions];
+                        updated[index].name = e.target.value;
+                        setEstimateOptions(updated);
+                      }}
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                      placeholder="예: 폐백실"
+                    />
+                  </div>
+
+                  {/* 가격 */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      가격 (원)
+                    </label>
+                    <input
+                      type="text"
+                      value={option.price.toLocaleString("ko-KR")}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/,/g, "");
+                        const numeric = Number(value);
+                        const updated = [...estimateOptions];
+                        updated[index].price = isNaN(numeric) ? 0 : numeric;
+                        setEstimateOptions(updated);
+                      }}
+                      placeholder="예: 100,000"
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                    />
+                  </div>
+
+                  {/* 필수 여부 */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      필수 여부
+                    </label>
+                    <select
+                      value={option.is_required ? "true" : "false"}
+                      onChange={(e) => {
+                        const updated = [...estimateOptions];
+                        updated[index].is_required = e.target.value === "true";
+                        setEstimateOptions(updated);
+                      }}
+                      className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm"
+                    >
+                      <option value="true">필수</option>
+                      <option value="false">선택</option>
+                    </select>
+                  </div>
+
+                  {/* 설명 */}
+                  <div className="md:col-span-3">
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      설명
+                    </label>
+                    <textarea
+                      value={option.description}
+                      onChange={(e) => {
+                        const updated = [...estimateOptions];
+                        updated[index].description = e.target.value;
+                        setEstimateOptions(updated);
+                      }}
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                      placeholder="옵션 설명"
+                    />
+                  </div>
+
+                  {/* 참고 URL */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-0.5">
+                      참고 URL
+                    </label>
+                    <input
+                      type="url"
+                      value={option.reference_url}
+                      onChange={(e) => {
+                        const updated = [...estimateOptions];
+                        updated[index].reference_url = e.target.value;
+                        setEstimateOptions(updated);
+                      }}
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            {/* 옵션 추가 버튼 */}
+            <button
+              type="button"
+              onClick={() =>
+                setEstimateOptions((prev) => [
+                  ...prev,
+                  {
+                    name: "",
+                    price: 0,
+                    is_required: false,
+                    description: "",
+                    reference_url: "",
+                  },
+                ])
+              }
+              className="w-full px-4 py-2 bg-green-500 text-white rounded cursor-pointer hover:font-semibold"
             >
-              {/* 삭제 버튼 */}
-              <button
-                type="button"
-                className="absolute top-2 right-2 text-red-500 cursor-pointer hover:font-semibold"
-                onClick={() =>
-                  setEstimateOptions((prev) =>
-                    prev.filter((_, i) => i !== index)
-                  )
-                }
-              >
-                {" "}
-                삭제{" "}
-              </button>
-
-              {/* 옵션명 */}
-              <label className="block mb-1">옵션명</label>
-              <input
-                type="text"
-                value={option.name}
-                onChange={(e) => {
-                  const updated = [...estimateOptions];
-                  updated[index].name = e.target.value;
-                  setEstimateOptions(updated);
-                }}
-                className="w-full mb-2 p-2 border border-gray-300"
-                placeholder="예: 폐백실"
-              />
-
-              {/* 가격 */}
-              <label className="block mb-1">가격</label>
-              <input
-                type="text"
-                value={option.price.toLocaleString("ko-KR")}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/,/g, "");
-                  const numeric = Number(value);
-                  const updated = [...estimateOptions];
-                  updated[index].price = isNaN(numeric) ? 0 : numeric;
-                  setEstimateOptions(updated);
-                }}
-                placeholder="예: 100,000"
-                className="w-full mb-2 p-2 border border-gray-300"
-              />
-
-              {/* 필수 여부 */}
-              <label className="block mb-1">필수 여부</label>
-              <select
-                value={option.is_required ? "true" : "false"}
-                onChange={(e) => {
-                  const updated = [...estimateOptions];
-                  updated[index].is_required = e.target.value === "true";
-                  setEstimateOptions(updated);
-                }}
-                className="w-full mb-2 p-2 border border-gray-300"
-              >
-                <option value="true">필수</option>
-                <option value="false">선택</option>
-              </select>
-
-              {/* 설명 */}
-              <label className="block mb-1">설명</label>
-              <textarea
-                value={option.description}
-                onChange={(e) => {
-                  const updated = [...estimateOptions];
-                  updated[index].description = e.target.value;
-                  setEstimateOptions(updated);
-                }}
-                className="w-full mb-2 p-2 border border-gray-300"
-                placeholder="옵션 설명"
-              />
-
-              {/* 참고 URL */}
-              <label className="block mb-1">참고 URL</label>
-              <input
-                type="url"
-                value={option.reference_url}
-                onChange={(e) => {
-                  const updated = [...estimateOptions];
-                  updated[index].reference_url = e.target.value;
-                  setEstimateOptions(updated);
-                }}
-                className="w-full mb-2 p-2 border border-gray-300"
-                placeholder="https://example.com"
-              />
-            </div>
-          ))}
-          {/* 옵션 추가 버튼 */}
-          <button
-            type="button"
-            onClick={() =>
-              setEstimateOptions((prev) => [
-                ...prev,
-                {
-                  name: "",
-                  price: 0,
-                  is_required: false,
-                  description: "",
-                  reference_url: "",
-                },
-              ])
-            }
-            className="w-full px-4 py-2 bg-green-500 text-white rounded cursor-pointer hover:font-semibold"
-          >
-            {" "}
-            + 옵션 추가{" "}
-          </button>
+              + 옵션 추가
+            </button>
+          </div>
         </fieldset>
         {/* 기타 메모사항 필드셋 */}
         <fieldset className="mb-4 p-4 border border-gray-200">
@@ -1136,7 +1229,7 @@ export default function GetStandardEstimate({
           disabled={isLoading}
           className="w-full bg-blue-500 text-white p-3 rounded cursor-pointer"
         >
-          {isLoading ? "처리 중..." : "수정 완료"}{" "}
+          {isLoading ? "처리 중..." : "관리자 견적서 등록 완료"}{" "}
         </button>
         {/* 취소 버튼 */}
         {onCancel && (

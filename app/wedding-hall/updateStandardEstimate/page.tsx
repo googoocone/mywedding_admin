@@ -1092,6 +1092,7 @@ function UpdateFormContent() {
                 value={companyData.name || ""}
                 onChange={handleCompanyInputChange}
                 required
+                readOnly
                 className="w-full p-2.5 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
             </div>
@@ -1108,6 +1109,7 @@ function UpdateFormContent() {
                 id="company_address"
                 name="address"
                 value={companyData.address || ""}
+                readOnly
                 onChange={handleCompanyInputChange}
                 className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
               />
@@ -1191,8 +1193,7 @@ function UpdateFormContent() {
                 htmlFor="hall_name"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                {" "}
-                홀 이름 *
+                홀 이름
               </label>
               <input
                 type="text"
@@ -1395,8 +1396,7 @@ function UpdateFormContent() {
                 className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
               />
             </div>
-            {/* type은 standard 고정 또는 숨김 처리 가능 */}
-            {/* <input type="hidden" name="type" value={estimateData.type || 'standard'} /> */}
+
             <div>
               <label
                 htmlFor="estimate_date"
@@ -1418,7 +1418,7 @@ function UpdateFormContent() {
                 htmlFor="estimate_time"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                견적 시간
+                예식 시작 시간
               </label>
               <input
                 type="time"
