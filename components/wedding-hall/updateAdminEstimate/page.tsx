@@ -304,6 +304,8 @@ export default function UpdateAdminEstimate({
       hall_price: estimateData.hall_price,
       type: estimateData.type,
       date: estimateData.date,
+      penalty_amount: estimateData.penalty_amount,
+      penalty_detail: estimateData.penalty_detail,
 
       etcs:
         etcData.content.trim() !== ""
@@ -386,9 +388,7 @@ export default function UpdateAdminEstimate({
       },
     };
 
-    // 백엔드 API 호출 (수정 엔드포인트 호출)
-    // 이 컴포넌트가 관리자 수정 전용이므로 항상 PUT/PATCH 호출
-    const apiEndpoint = `http://localhost:8000/admin/update_admin_estimate/${initialData.id}`; // 관리자 수정 엔드포인트 예시
+    const apiEndpoint = `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/update_admin_estimate/${initialData.id}`; // 관리자 수정 엔드포인트 예시
     const httpMethod = "PUT"; // 관리자 수정은 PUT 또는 PATCH 사용
 
     try {
@@ -397,7 +397,7 @@ export default function UpdateAdminEstimate({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
+      console.log("payload", payload);
       const result = await response.json();
 
       if (!response.ok) {

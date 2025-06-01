@@ -962,8 +962,7 @@ export default function GetStandardEstimate({
                     )
                   }
                 >
-                  {" "}
-                  삭제{" "}
+                  삭제
                 </button>
 
                 {/* 항목 종류 */}
@@ -1219,17 +1218,17 @@ export default function GetStandardEstimate({
           />
         </fieldset>
         {/* 사진 관리 섹션 (읽기 전용) - initialData가 있을 때만 표시 */}
-        {/* Feedback & Submit */}{" "}
-        {error && <p className="text-red-500 cursor-pointer">{error}</p>}{" "}
+        {/* Feedback & Submit */}
+        {error && <p className="text-red-500 cursor-pointer">{error}</p>}
         {successMessage && (
           <p className="text-green-500 cursor-pointer">{successMessage}</p>
-        )}{" "}
+        )}
         <button
           type="submit"
           disabled={isLoading}
           className="w-full bg-blue-500 text-white p-3 rounded cursor-pointer"
         >
-          {isLoading ? "처리 중..." : "관리자 견적서 등록 완료"}{" "}
+          {isLoading ? "처리 중..." : "관리자 견적서 등록 완료"}
         </button>
         {/* 취소 버튼 */}
         {onCancel && (
@@ -1240,8 +1239,8 @@ export default function GetStandardEstimate({
           >
             취소
           </button>
-        )}{" "}
-      </form>{" "}
+        )}
+      </form>
     </div>
   );
 }

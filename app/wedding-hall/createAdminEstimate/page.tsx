@@ -88,12 +88,12 @@ export default function CreateAdminEstimatePage() {
     <div className="w-full flex flex-col items-center justify-center mt-10 gap-5">
       {/* 회사 검색 부분 */}
       <div className="w-[600px] border-gray-400 border rounded-lg flex flex-col items-center justify-start px-6 py-4">
-        <h2 className="text-2xl font-semibold my-10">관리자 견적서 등록</h2>{" "}
+        <h2 className="text-2xl font-semibold my-10">관리자 견적서 등록</h2>
         {/* 제목 변경 고려 */}
         <div className="w-full">
           <NaverPlaceSearch
             setCompanyData={setCompanySearchData}
-          ></NaverPlaceSearch>{" "}
+          ></NaverPlaceSearch>
           {/* 상태 이름 변경 */}
         </div>
         {/* companySearchData의 name 필드가 채워졌는지 확인 후 버튼 활성화 */}
@@ -111,7 +111,6 @@ export default function CreateAdminEstimatePage() {
       {estimateList.length > 0 &&
         !selectedEstimate && ( // 목록이 있고 선택되지 않았을 때만 보여줌
           <div className="w-[600px] flex items-center justify-between flex-wrap gap-4">
-            {" "}
             {/* 목록 레이아웃 조정 고려 */}
             {estimateList.map((item) => (
               <div
@@ -121,7 +120,7 @@ export default function CreateAdminEstimatePage() {
               >
                 {/* 백엔드에서 받아온 상세 구조에 맞춰 hall.name 사용 */}
                 <p className="text-lg">{item.hall.name}</p>
-                {/* 다른 간단 정보 표시 가능 */}
+
                 <p className="text-sm text-gray-600">{item.date}</p>
               </div>
             ))}
