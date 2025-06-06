@@ -59,7 +59,7 @@ export default function GetStandardEstimate({
     interval_minutes: 60,
     guarantees: 100,
     parking: 50,
-    type: "컨벤션", // 기본값
+    type: "", // 기본값
     mood: "밝은", // 기본값
   });
 
@@ -547,7 +547,7 @@ export default function GetStandardEstimate({
                     <input
                       type="checkbox"
                       value={typeOption}
-                      checked={(hallData.type || []).includes(typeOption)}
+                      checked={hallData.type.includes(typeOption)}
                       // onChange={() => handleHallTypeChange(typeOption)}
                       className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-4 w-4"
                     />
