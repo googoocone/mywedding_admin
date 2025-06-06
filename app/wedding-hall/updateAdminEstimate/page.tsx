@@ -219,7 +219,7 @@ export default function UpdateAdminEstimatePage() {
                   </td>
                   <td className="py-3 px-6 text-left max-w-xs truncate">
                     {formatAddressShort(
-                      estimate.hall?.wedding_company?.address
+                      estimate.hall?.wedding_company?.address || "정보 없음"
                     )}
                   </td>
                   <td className="py-3 px-6 text-left whitespace-nowrap">
