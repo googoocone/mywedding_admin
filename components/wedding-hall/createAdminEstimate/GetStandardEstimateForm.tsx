@@ -1175,7 +1175,6 @@ export default function GetStandardEstimate({
                         setEstimateOptions(updated);
                       }}
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                      placeholder="https://example.com"
                     />
                   </div>
                 </div>
