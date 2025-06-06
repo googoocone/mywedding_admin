@@ -176,7 +176,12 @@ export default function DeleteAdminEstimatePage() {
   };
 
   const handleEdit = (estimateId: number) => {
-    router.push(`/wedding-hall/updateStandardEstimate?id=${estimateId}`);
+    // router.push(`/wedding-hall/updateStandardEstimate?id=${estimateId}`,);
+    // window.open()을 사용하여 새 창으로 페이지 띄우기
+    window.open(
+      `/wedding-hall/updateStandardEstimate?id=${estimateId}`,
+      "_blank"
+    );
   };
 
   const handleSearchInputChange = (event: ChangeEvent<HTMLInputElement>) => {
