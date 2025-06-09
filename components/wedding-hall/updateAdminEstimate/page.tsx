@@ -304,6 +304,7 @@ export default function UpdateAdminEstimate({
       hall_price: estimateData.hall_price,
       type: estimateData.type,
       date: estimateData.date,
+      time: estimateData.time,
       penalty_amount: estimateData.penalty_amount,
       penalty_detail: estimateData.penalty_detail,
 

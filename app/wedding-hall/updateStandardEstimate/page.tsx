@@ -374,6 +374,50 @@ function UpdateFormContent() {
 
     fetchEstimateDetails();
   }, [estimateId]); // estimateId가 변경될 때만 실행
+  useEffect(() => {
+    console.log(
+      "🧹 Component did mount. Clearing any stale file states from Fast Refresh."
+    );
+
+    // 1. 메인 사진 정리: File 객체가 있거나(새로 추가됨), preview가 blob이면 초기화.
+    // API에서 불러온 originalUrl만 있는 경우는 유지합니다.
+    setMainPhotoDisplay((prev) => {
+      if (prev && (prev.file || prev.preview.startsWith("blob:"))) {
+        if (prev.preview.startsWith("blob:")) {
+          URL.revokeObjectURL(prev.preview); // 메모리 누수 방지
+        }
+        // DB에서 온 원본 이미지가 있다면 거기로 되돌리고, 아니면 null로 만든다.
+        return prev.originalUrl
+          ? { ...prev, file: undefined, preview: prev.originalUrl }
+          : null;
+      }
+      return prev; // API에서 온 데이터는 그대로 둔다.
+    });
+
+    // mainPhotoFile 상태는 무조건 초기화합니다.
+    setMainPhotoFile(null);
+
+    // 2. 추가 사진들 정리: File 객체가 있는 항목들(새로 추가된 항목)만 필터링해서 제거합니다.
+    setSubPhotoItems((prevItems) => {
+      // 제거해야 할 항목과 유지해야 할 항목을 분리
+      const itemsToKeep = prevItems.filter(
+        (item) => !item.file && !item.preview.startsWith("blob:")
+      );
+      const itemsToRemove = prevItems.filter(
+        (item) => item.file || item.preview.startsWith("blob:")
+      );
+
+      // 제거할 항목들의 blob URL 해제
+      itemsToRemove.forEach((item) => {
+        if (item.preview.startsWith("blob:")) {
+          URL.revokeObjectURL(item.preview);
+        }
+      });
+
+      // 최종적으로 API에서 가져온, 유효한 사진 목록만 남깁니다.
+      return itemsToKeep;
+    });
+  }, []); // 의존성 배열을 비워 최초 마운트 시에만 단 한 번 실행되도록 합니다.
 
   // --- 입력 핸들러 함수들 (기존 코드와 동일하게 유지) ---
   const handleCompanyInputChange = (
@@ -773,7 +817,7 @@ function UpdateFormContent() {
 
     // 최종적으로 백엔드에 전달할 사진 정보 목록
     const finalPhotosForPayload: {
-      dbId?: number;
+      id?: number;
       url: string;
       order_num: number;
       caption?: string | null;
@@ -796,6 +840,7 @@ function UpdateFormContent() {
         );
         finalPhotosForPayload.push({
           // dbId는 새 파일이므로 보내지 않음 (백엔드에서 생성)
+          id: mainPhotoDisplay.dbId,
           url: String(mainUrl),
           order_num: currentPayloadOrderNum++,
           caption: mainPhotoDisplay.caption || "대표 사진",
@@ -806,7 +851,7 @@ function UpdateFormContent() {
         // 기존 대표 사진을 '유지' + 정보 업데이트 가능 (파일 변경 없음)
         console.log("대표 사진: 기존 사진 정보 유지/업데이트");
         finalPhotosForPayload.push({
-          dbId: mainPhotoDisplay.dbId, // ✅ 기존 사진의 DB ID 전달 (업데이트 대상 식별용)
+          id: mainPhotoDisplay.dbId, // ✅ 기존 사진의 DB ID 전달 (업데이트 대상 식별용)
           url: mainPhotoDisplay.originalUrl, // URL은 변경되지 않음
           order_num: currentPayloadOrderNum++,
           // 캡션이나 표시 여부는 업데이트 가능
@@ -848,7 +893,7 @@ function UpdateFormContent() {
             `추가 사진 (순서 ${currentPayloadOrderNum}): 기존 사진 정보 유지/업데이트 - ${item.originalUrl}`
           );
           finalPhotosForPayload.push({
-            dbId: item.dbId, // ✅ 기존 ID 전달
+            id: item.dbId, // ✅ 기존 ID 전달
             url: item.originalUrl,
             order_num: currentPayloadOrderNum++,
             caption: item.caption,
@@ -862,10 +907,7 @@ function UpdateFormContent() {
           );
         }
       }
-      // --- 사진 정보 구성 끝 ---
 
-      // --- 페이로드 구성 (스키마에 맞게 필드명 확인 필수) ---
-      // 백엔드 StandardEstimateUpdateRequestSchemaV2 스키마를 참고하여 필드명 정확히 일치시킬 것
       const payload = {
         // 견적서 직접 필드들
         hall_price: estimateData.hall_price,
