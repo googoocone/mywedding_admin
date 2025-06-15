@@ -49,12 +49,25 @@ export default function UpdateAdminEstimatePage() {
     const sortableList = [...estimateList]; // 원본 배열을 복사하여 사용
     if (sortConfig.key) {
       sortableList.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const valueA = a[sortConfig.key];
+        const valueB = b[sortConfig.key];
+
+        // 1. null 또는 undefined 값 처리
+        // 둘 다 null/undefined이면 순서 변경 없음
+        if (valueA == null && valueB == null) return 0;
+        // a만 null/undefined이면 b를 앞으로 보냄 (null 값을 뒤로 정렬)
+        if (valueA == null) return 1;
+        // b만 null/undefined이면 a를 앞으로 보냄 (null 값을 뒤로 정렬)
+        if (valueB == null) return -1;
+
+        // 2. 실제 값 비교 (null이 아닌 경우)
+        if (valueA < valueB) {
           return sortConfig.direction === "ascending" ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (valueA > valueB) {
           return sortConfig.direction === "ascending" ? 1 : -1;
         }
+
         return 0;
       });
     }
