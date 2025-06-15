@@ -182,7 +182,6 @@ function UpdateFormContent() {
         | "estimate_options"
         | "etcs"
         | "wedding_packages"
-        | "guarantees"
       >
     >
   >({});
