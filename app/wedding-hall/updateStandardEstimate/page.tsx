@@ -182,6 +182,7 @@ function UpdateFormContent() {
         | "estimate_options"
         | "etcs"
         | "wedding_packages"
+        | "guarantees"
       >
     >
   >({});
@@ -431,7 +432,7 @@ function UpdateFormContent() {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    const numFields = ["interval_minutes", "guarantees", "parking"];
+    const numFields = ["interval_minutes", "parking"];
     setHallData((prev) => ({
       ...prev,
       [name]: numFields.includes(name) ? Number(value) || null : value,
@@ -452,7 +453,7 @@ function UpdateFormContent() {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    const numFields = ["hall_price", "penalty_amount"];
+    const numFields = ["hall_price", "guarantees", "penalty_amount"];
     const boolFields = [""]; // boolean 타입 필드 (예시, 현재 없음)
 
     setEstimateData((prev) => ({
@@ -914,6 +915,7 @@ function UpdateFormContent() {
         type: estimateData.type, // 'standard' 등 고정값 또는 입력값
         date: estimateData.date || null, // 빈 문자열 대신 null
         time: estimateData.time || null, // 빈 문자열 대신 null
+        guarantees: estimateData.guarantees || null,
         penalty_amount: estimateData.penalty_amount,
         penalty_detail: estimateData.penalty_detail,
 
@@ -1266,17 +1268,17 @@ function UpdateFormContent() {
             </div>
             <div>
               <label
-                htmlFor="hall_guarantees"
+                htmlFor="estimate_guarantees"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 보증 인원
               </label>
               <input
                 type="number"
-                id="hall_guarantees"
+                id="estimate_guarantees"
                 name="guarantees"
-                value={hallData.guarantees || ""}
-                onChange={handleHallInputChange}
+                value={estimateData.guarantees || ""}
+                onChange={handleEstimateInputChange}
                 className="w-full p-2.5 border border-gray-300 rounded-md text-sm"
               />
             </div>

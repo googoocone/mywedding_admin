@@ -76,6 +76,7 @@ export default function GetStandardEstimate({
     date: "", // ISO 날짜 문자열
     time: "",
     penalty_amount: 0,
+    guarantees: 100,
     penalty_detail: "",
   });
 
@@ -174,6 +175,7 @@ export default function GetStandardEstimate({
         time: initialData.time || "",
         penalty_amount: initialData.penalty_amount || 0,
         penalty_detail: initialData.penalty_detail || "",
+        guarantees: initialData.guarantees || 0,
       });
 
       // 식대 항목 목록 초기화 (Array of MealPriceData)
@@ -267,6 +269,7 @@ export default function GetStandardEstimate({
         time: "",
         penalty_amount: 0,
         penalty_detail: "",
+        guarantees: 0,
       });
       setMealTypes([{ meal_type: "", category: "대인", price: 0, extra: "" }]);
       setPackageData({
@@ -314,7 +317,7 @@ export default function GetStandardEstimate({
       time: estimateData.time,
       penalty_amount: estimateData.penalty_amount,
       penalty_detail: estimateData.penalty_detail,
-
+      guarantees: estimateData.guarantees,
       etcs:
         etcData.content.trim() !== ""
           ? [
@@ -504,17 +507,17 @@ export default function GetStandardEstimate({
             </div>
             <div>
               <label
-                htmlFor="hall_guarantees"
+                htmlFor="estimate_guarantees"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 보증 인원
               </label>
               <input
                 type="number"
-                value={hallData.guarantees}
+                value={estimateData.guarantees}
                 onChange={(e) =>
-                  setHallData({
-                    ...hallData,
+                  setEstimateData({
+                    ...estimateData,
                     guarantees: Number(e.target.value),
                   })
                 }

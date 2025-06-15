@@ -123,6 +123,7 @@ export interface DetailedEstimate {
   type: EstimateType | null; // 견적서 종류 (Enum 타입 사용)
   date: string | null; // 날짜 (ISO string 형식으로 넘어옴)
   time: string | null;
+  guarantees: number | null;
   penalty_amount: number | null;
   penalty_detail: string | null;
   created_by_user_id: string | null; // 작성자 ID (String UUID 등)

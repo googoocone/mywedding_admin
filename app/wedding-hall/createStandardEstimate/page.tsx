@@ -160,6 +160,7 @@ export default function CreateStandardEstimate() {
     date: "",
     time: "",
     penalty_amount: 0,
+    guarantees: 100,
     penalty_detail: "",
   });
 
@@ -573,10 +574,10 @@ export default function CreateStandardEstimate() {
                 type="number"
                 id="guarantees"
                 min="0"
-                value={hallData.guarantees}
+                value={estimateData.guarantees}
                 onChange={(e) =>
-                  setHallData({
-                    ...hallData,
+                  setEstimateData({
+                    ...estimateData,
                     guarantees: Math.max(0, Number(e.target.value) || 0),
                   })
                 }

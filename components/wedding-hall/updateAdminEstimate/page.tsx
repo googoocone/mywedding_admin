@@ -69,6 +69,7 @@ export default function UpdateAdminEstimate({
     time: "",
     penalty_amount: 0,
     penalty_detail: "",
+    guarantees: 0,
   });
 
   // 식대 항목 목록 상태
@@ -167,6 +168,7 @@ export default function UpdateAdminEstimate({
         time: initialData.time || "",
         penalty_amount: initialData.penalty_amount || 0,
         penalty_detail: initialData.penalty_detail || "",
+        guarantees: initialData.guarantees || 0,
       });
 
       // 식대 항목 목록 초기화 (Array of MealPriceData)
@@ -260,6 +262,7 @@ export default function UpdateAdminEstimate({
         time: "",
         penalty_amount: 0,
         penalty_detail: "",
+        guarantees: 0,
       });
       setMealTypes([{ meal_type: "", category: "대인", price: 0, extra: "" }]);
       setPackageData({
@@ -307,6 +310,7 @@ export default function UpdateAdminEstimate({
       time: estimateData.time,
       penalty_amount: estimateData.penalty_amount,
       penalty_detail: estimateData.penalty_detail,
+      guarantees: estimateData.guarantees,
 
       etcs:
         etcData.content.trim() !== ""
@@ -493,9 +497,12 @@ export default function UpdateAdminEstimate({
           <label>보증 인원</label>
           <input
             type="number"
-            value={hallData.guarantees}
+            value={estimateData.guarantees}
             onChange={(e) =>
-              setHallData({ ...hallData, guarantees: Number(e.target.value) })
+              setEstimateData({
+                ...estimateData,
+                guarantees: Number(e.target.value),
+              })
             }
             className="w-full mb-4 p-2 border border-gray-300"
             placeholder="보증 인원"
